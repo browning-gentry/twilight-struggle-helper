@@ -19,7 +19,7 @@ from src.app import create_app
 class TestIntegration(unittest.TestCase):
     """Integration tests for the complete application"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures before each test method"""
         self.app = create_app()
         self.app.testing = True
@@ -32,12 +32,12 @@ class TestIntegration(unittest.TestCase):
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = os.path.join(self.test_dir, 'test_config.json')
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up after each test method"""
         # Remove temporary directory
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_full_config_workflow(self):
+    def test_full_config_workflow(self) -> None:
         """Test the complete configuration workflow"""
         # 1. Get initial config
         response = self.client.get('/api/config/')
@@ -69,7 +69,7 @@ class TestIntegration(unittest.TestCase):
 
     @patch('src.utils.log_utils.get_latest_log_file')
     @patch('twilight_log_parser.log_parser.LogParser')
-    def test_full_game_status_workflow(self, mock_parser_class, mock_get_log_file):
+    def test_full_game_status_workflow(self, mock_parser_class: MagicMock, mock_get_log_file: MagicMock) -> None:
         """Test the complete game status workflow"""
         # Mock successful log parsing
         mock_get_log_file.return_value = "/test/path/game_log.txt"
@@ -109,7 +109,7 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(game_status['status'], 'ok')
         self.assertIn('filename', game_status)
 
-    def test_cors_headers_across_all_endpoints(self):
+    def test_cors_headers_across_all_endpoints(self) -> None:
         """Test that CORS headers are properly set across all endpoints"""
         endpoints = [
             '/api/config/',
@@ -122,7 +122,7 @@ class TestIntegration(unittest.TestCase):
             self.assertIn('Access-Control-Allow-Origin', response.headers)
             self.assertEqual(response.headers['Access-Control-Allow-Origin'], 'http://localhost:3000')
 
-    def test_error_propagation_across_modules(self):
+    def test_error_propagation_across_modules(self) -> None:
         """Test that errors propagate correctly across modules"""
         # Test config error propagation
         with patch('src.config.config_manager.ConfigManager.load_config') as mock_load:
@@ -134,14 +134,14 @@ class TestIntegration(unittest.TestCase):
             self.assertFalse(data['success'])
             self.assertIn('Config error', data['error'])
 
-    def test_multiple_concurrent_requests(self):
+    def test_multiple_concurrent_requests(self) -> None:
         """Test handling of multiple concurrent requests"""
         import threading
 
         results = []
         errors = []
 
-        def make_request():
+        def make_request() -> None:
             try:
                 response = self.client.get('/api/config/')
                 results.append(response.status_code)

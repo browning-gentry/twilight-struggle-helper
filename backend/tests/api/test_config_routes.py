@@ -15,12 +15,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
 
 from src.app import create_app
 from src.config.config_manager import ConfigManager
+from src.models.game_data import ConfigModel
 
 
 class TestConfigRoutes(unittest.TestCase):
     """Test cases for configuration API routes"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures before each test method"""
         self.app = create_app()
         self.app.testing = True
@@ -35,22 +36,22 @@ class TestConfigRoutes(unittest.TestCase):
             self.config_manager = ConfigManager()
             self.test_config_file = self.config_manager.config_file
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up after each test method"""
         # Remove temporary directory
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_get_config_endpoint(self):
+    def test_get_config_endpoint(self) -> None:
         """Test GET /api/config endpoint"""
-        with patch('src.config.config_manager.config_manager._get_config_file_path') as mock_path:
+        with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = self.test_config_file
             # Test with no existing config file
-            with patch('src.config.config_manager.config_manager.load_config') as mock_load_config:
+            with patch('src.api.config_routes.config_manager.load_config') as mock_load_config:
                 # First call: no config file
-                mock_load_config.return_value = {
-                    "log_file_path": None,
-                    "log_directory": "/default/directory"
-                }
+                mock_load_config.return_value = ConfigModel(
+                    log_file_path=None,
+                    log_directory="/default/directory"
+                )
                 response = self.client.get('/api/config/')
                 self.assertEqual(response.status_code, 200)
                 data = json.loads(response.data)
@@ -63,13 +64,13 @@ class TestConfigRoutes(unittest.TestCase):
                 self.assertTrue(actual_default == expected_default or actual_default.endswith("Twilight Struggle"))
 
             # Test with existing config file
-            test_config = {
-                "log_file_path": "/test/path/log.txt",
-                "log_directory": "/test/directory"
-            }
+            test_config = ConfigModel(
+                log_file_path="/test/path/log.txt",
+                log_directory="/test/directory"
+            )
             with open(self.test_config_file, 'w') as f:
-                json.dump(test_config, f)
-            with patch('src.config.config_manager.config_manager.load_config') as mock_load_config:
+                json.dump(test_config.model_dump(), f)
+            with patch('src.api.config_routes.config_manager.load_config') as mock_load_config:
                 mock_load_config.return_value = test_config
                 response = self.client.get('/api/config/')
                 self.assertEqual(response.status_code, 200)
@@ -78,7 +79,7 @@ class TestConfigRoutes(unittest.TestCase):
                 self.assertEqual(data['config']['log_file_path'], "/test/path/log.txt")
                 self.assertEqual(data['config']['log_directory'], "/test/directory")
 
-    def test_update_config_endpoint(self):
+    def test_update_config_endpoint(self) -> None:
         """Test PUT /api/config endpoint"""
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = self.test_config_file
@@ -115,7 +116,7 @@ class TestConfigRoutes(unittest.TestCase):
             # Should have default values
             self.assertIsNotNone(data['config']['log_directory'])
 
-    def test_reset_config_endpoint(self):
+    def test_reset_config_endpoint(self) -> None:
         """Test POST /api/config/reset endpoint"""
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = self.test_config_file
@@ -136,7 +137,7 @@ class TestConfigRoutes(unittest.TestCase):
             self.assertIsNone(data['config']['log_file_path'])
             self.assertIn('log_directory', data['config'])
 
-    def test_cors_headers(self):
+    def test_cors_headers(self) -> None:
         """Test that CORS headers are properly set"""
         response = self.client.get('/api/config/')
         self.assertIn('Access-Control-Allow-Origin', response.headers)

@@ -12,7 +12,7 @@ from app import format_play_data
 class TestUtilityFunctions(unittest.TestCase):
     """Test cases for utility functions"""
 
-    def test_format_play_data_with_valid_cards(self):
+    def test_format_play_data_with_valid_cards(self) -> None:
         """Test format_play_data function with valid card data"""
         # Create mock game and play objects
         mock_game = MagicMock()
@@ -53,7 +53,7 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(cuba_card['side'], "USSR")
         self.assertEqual(cuba_card['ops'], 2)
 
-    def test_format_play_data_with_missing_cards(self):
+    def test_format_play_data_with_missing_cards(self) -> None:
         """Test format_play_data function when cards are missing from CARDS dict"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -74,7 +74,7 @@ class TestUtilityFunctions(unittest.TestCase):
         # Should return the card name as string when card not found
         self.assertEqual(result['deck'][0], "Unknown Card")
 
-    def test_format_play_data_with_none_ops(self):
+    def test_format_play_data_with_none_ops(self) -> None:
         """Test format_play_data function when card ops is None"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -98,7 +98,7 @@ class TestUtilityFunctions(unittest.TestCase):
         test_card = result['deck'][0]
         self.assertEqual(test_card['ops'], 0)
 
-    def test_format_play_data_without_cards_attribute(self):
+    def test_format_play_data_without_cards_attribute(self) -> None:
         """Test format_play_data function when game has no CARDS attribute"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -119,7 +119,7 @@ class TestUtilityFunctions(unittest.TestCase):
         # Should return card name as string
         self.assertEqual(result['deck'][0], "Test Card")
 
-    def test_format_play_data_without_turn_attribute(self):
+    def test_format_play_data_without_turn_attribute(self) -> None:
         """Test format_play_data function when play has no turn attribute"""
         mock_game = MagicMock()
         mock_play = MagicMock()

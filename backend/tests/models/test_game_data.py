@@ -10,20 +10,20 @@ from unittest.mock import MagicMock
 # Add the src directory to the path so we can import from the modular structure
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'src'))
 
-from src.models.game_data import Card, GameDataFormatter, GameStatus
+from src.models.game_data import Card, GameStatus, GameDataFormatter
 
 
 class TestGameDataModels(unittest.TestCase):
     """Test cases for game data models and formatters"""
 
-    def test_card_model(self):
+    def test_card_model(self) -> None:
         """Test Card Pydantic model"""
         card = Card(name="Test Card", side="USSR", ops=2)
         self.assertEqual(card.name, "Test Card")
         self.assertEqual(card.side, "USSR")
         self.assertEqual(card.ops, 2)
 
-    def test_game_status_model(self):
+    def test_game_status_model(self) -> None:
         """Test GameStatus Pydantic model"""
         status = GameStatus(
             status="ok",
@@ -40,7 +40,7 @@ class TestGameDataModels(unittest.TestCase):
         self.assertEqual(status.filename, "test.txt")
         self.assertEqual(status.turn, 1)
 
-    def test_format_play_data_with_valid_cards(self):
+    def test_format_play_data_with_valid_cards(self) -> None:
         """Test format_play_data function with valid card data"""
         # Create mock game and play objects
         mock_game = MagicMock()
@@ -88,7 +88,7 @@ class TestGameDataModels(unittest.TestCase):
         self.assertEqual(cuba_card.side, "USSR")
         self.assertEqual(cuba_card.ops, 2)
 
-    def test_format_play_data_with_missing_cards(self):
+    def test_format_play_data_with_missing_cards(self) -> None:
         """Test format_play_data function when cards are missing from CARDS dict"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -111,7 +111,7 @@ class TestGameDataModels(unittest.TestCase):
         self.assertEqual(result.deck[0].side, "")
         self.assertEqual(result.deck[0].ops, 0)
 
-    def test_format_play_data_with_none_ops(self):
+    def test_format_play_data_with_none_ops(self) -> None:
         """Test format_play_data function when card ops is None"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -135,7 +135,7 @@ class TestGameDataModels(unittest.TestCase):
         test_card = result.deck[0]
         self.assertEqual(test_card.ops, 0)
 
-    def test_format_play_data_without_cards_attribute(self):
+    def test_format_play_data_without_cards_attribute(self) -> None:
         """Test format_play_data function when game has no CARDS attribute"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -158,7 +158,7 @@ class TestGameDataModels(unittest.TestCase):
         self.assertEqual(result.deck[0].side, "")
         self.assertEqual(result.deck[0].ops, 0)
 
-    def test_format_play_data_without_turn_attribute(self):
+    def test_format_play_data_without_turn_attribute(self) -> None:
         """Test format_play_data function when play has no turn attribute"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -180,7 +180,7 @@ class TestGameDataModels(unittest.TestCase):
         # Should handle missing turn gracefully
         self.assertIsNone(result.turn)
 
-    def test_create_error_response(self):
+    def test_create_error_response(self) -> None:
         """Test create_error_response function"""
         error_response = GameDataFormatter.create_error_response("Test error", "test.txt")
         self.assertEqual(error_response.status, "error")
@@ -193,14 +193,14 @@ class TestGameDataModels(unittest.TestCase):
         self.assertEqual(error_response.your_hand, [])
         self.assertEqual(error_response.opponent_hand, [])
 
-    def test_create_error_response_without_filename(self):
+    def test_create_error_response_without_filename(self) -> None:
         """Test create_error_response function without filename"""
         error_response = GameDataFormatter.create_error_response("Test error")
         self.assertEqual(error_response.status, "error")
         self.assertEqual(error_response.error, "Test error")
         self.assertIsNone(error_response.filename)
 
-    def test_create_no_game_data_response(self):
+    def test_create_no_game_data_response(self) -> None:
         """Test create_no_game_data_response function"""
         no_data_response = GameDataFormatter.create_no_game_data_response("test.txt")
         self.assertEqual(no_data_response.status, "no game data")

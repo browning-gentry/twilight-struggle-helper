@@ -6,9 +6,9 @@ import sys
 from dataclasses import dataclass
 from os.path import expanduser
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, Tuple, Dict, List, Optional
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 from twilight_log_parser import log_parser
 
@@ -116,7 +116,7 @@ def get_latest_log_file() -> str | None:
             # Construct full path if it's just a filename
             if os.path.isabs(config["log_file_path"]):
                 # It's already a full path
-                log_file_path = config["log_file_path"]
+                log_file_path: str = config["log_file_path"]
             else:
                 # It's a relative filename, combine with log directory
                 log_dir = Path(config.get("log_directory", get_default_log_directory()))
@@ -181,7 +181,7 @@ def get_log_directory_info() -> dict[str, Any]:
     return result
 
 @app.route('/api/config/', methods=['GET'])
-def get_config():
+def get_config() -> Union[Response, Tuple[Response, int]]:
     """Get current configuration"""
     try:
         config = load_config()
@@ -191,7 +191,7 @@ def get_config():
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/config/', methods=['PUT'])
-def update_config():
+def update_config() -> Union[Response, Tuple[Response, int]]:
     """Update configuration"""
     try:
         if not request.is_json:
@@ -224,7 +224,7 @@ def update_config():
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/config/reset', methods=['POST'])
-def reset_config():
+def reset_config() -> Union[Response, Tuple[Response, int]]:
     """Reset configuration to defaults"""
     try:
         default_config = {
@@ -242,7 +242,7 @@ def reset_config():
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/test', methods=['GET'])
-def test_endpoint():
+def test_endpoint() -> Union[Response, Tuple[Response, int]]:
     """Test endpoint to debug issues"""
     try:
         config = load_config()
@@ -271,7 +271,7 @@ def test_endpoint():
         return jsonify({"error": str(e), "traceback": str(e.__traceback__)}), 500
 
 @app.route('/api/current-status', methods=['GET'])
-def get_current_status():
+def get_current_status() -> Union[Response, Tuple[Response, int]]:
     logger.debug('Received request for current status')
     try:
         config = load_config()
@@ -342,7 +342,7 @@ def get_current_status():
         }), 500
 
 @app.route('/api/shutdown', methods=['POST'])
-def shutdown():
+def shutdown() -> Union[Response, Tuple[Response, int]]:
     """Shutdown the server gracefully"""
     try:
         # This will only work if running with Werkzeug
@@ -355,7 +355,7 @@ def shutdown():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/status', methods=['GET'])
-def status():
+def status() -> Response:
     return jsonify({"status": "ok"})
 
 @dataclass
@@ -364,15 +364,15 @@ class CardData:
     side: str
     ops: int
 
-def format_play_data(play: Any, game: Any) -> dict[str, Any]:
+def format_play_data(play: Any, game: Any) -> Dict[str, Any]:
     """Format play data to match frontend expectations"""
-    def format_card(card_name: str) -> dict[str, Any]:
+    def format_card(card_name: str) -> Dict[str, Any]:
         if not hasattr(game, 'CARDS'):
-            return card_name
+            return {"name": card_name, "side": "unknown", "ops": 0}
         card = game.CARDS.get(card_name)
         if not card:
             logger.warning(f"Card not found in CARDS: {card_name}")
-            return card_name
+            return {"name": card_name, "side": "unknown", "ops": 0}
 
         # Get ops value, defaulting to 0 if None or not present
         ops = 0

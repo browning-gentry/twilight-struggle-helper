@@ -20,7 +20,7 @@ if sys.platform == 'darwin':  # macOS
             os.environ['DYLD_LIBRARY_PATH'] = f"{os.environ.get('DYLD_LIBRARY_PATH', '')}:{path}"
 
 # Pre-load some common system libraries
-def find_library(name):
+def find_library(name: str) -> str | None:
     return ctypes.util.find_library(name)
 
 for lib in ['c', 'm', 'pthread', 'dl']:

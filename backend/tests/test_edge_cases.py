@@ -21,7 +21,7 @@ from src.models.game_data import GameDataFormatter
 class TestEdgeCases(unittest.TestCase):
     """Test cases for edge cases and error handling"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures before each test method"""
         self.app = create_app()
         self.app.testing = True
@@ -34,12 +34,12 @@ class TestEdgeCases(unittest.TestCase):
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = os.path.join(self.test_dir, 'test_config.json')
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up after each test method"""
         # Remove temporary directory
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_empty_json_request(self):
+    def test_empty_json_request(self) -> None:
         """Test handling of empty JSON in PUT requests"""
         response = self.client.put('/api/config/',
                                  data='{}',
@@ -48,7 +48,7 @@ class TestEdgeCases(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(data['success'])
 
-    def test_malformed_json_request(self):
+    def test_malformed_json_request(self) -> None:
         """Test handling of malformed JSON in PUT requests"""
         response = self.client.put('/api/config/',
                                  data='{"invalid": json}',
@@ -57,7 +57,7 @@ class TestEdgeCases(unittest.TestCase):
         data = json.loads(response.data)
         self.assertFalse(data['success'])
 
-    def test_very_large_json_request(self):
+    def test_very_large_json_request(self) -> None:
         """Test handling of very large JSON requests"""
         large_data = {
             "log_file_path": "x" * 10000,  # Very long path
@@ -68,7 +68,7 @@ class TestEdgeCases(unittest.TestCase):
                                  content_type='application/json')
         self.assertEqual(response.status_code, 200)
 
-    def test_unicode_characters_in_config(self):
+    def test_unicode_characters_in_config(self) -> None:
         """Test handling of unicode characters in configuration"""
         unicode_data = {
             "log_file_path": "/path/with/unicode/测试.txt",
@@ -81,7 +81,7 @@ class TestEdgeCases(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(data['success'])
 
-    def test_special_characters_in_config(self):
+    def test_special_characters_in_config(self) -> None:
         """Test handling of special characters in configuration"""
         special_data = {
             "log_file_path": "/path/with/special/chars/file (1).txt",
@@ -92,18 +92,18 @@ class TestEdgeCases(unittest.TestCase):
                                  content_type='application/json')
         self.assertEqual(response.status_code, 200)
 
-    def test_none_values_in_config(self):
+    def test_none_values_in_config(self) -> None:
         """Test handling of None values in configuration"""
         none_data = {
             "log_file_path": None,
-            "log_directory": None
+            "log_directory": "/test/directory"  # This can't be None, it's required
         }
         response = self.client.put('/api/config/',
                                  data=json.dumps(none_data),
                                  content_type='application/json')
         self.assertEqual(response.status_code, 200)
 
-    def test_missing_content_type_header(self):
+    def test_missing_content_type_header(self) -> None:
         """Test handling of requests without content-type header"""
         response = self.client.put('/api/config/',
                                  data=json.dumps({"test": "data"}))
@@ -111,7 +111,7 @@ class TestEdgeCases(unittest.TestCase):
         data = json.loads(response.data)
         self.assertIn('error', data)
 
-    def test_wrong_content_type_header(self):
+    def test_wrong_content_type_header(self) -> None:
         """Test handling of requests with wrong content-type header"""
         response = self.client.put('/api/config/',
                                  data=json.dumps({"test": "data"}),
@@ -120,21 +120,21 @@ class TestEdgeCases(unittest.TestCase):
         data = json.loads(response.data)
         self.assertIn('error', data)
 
-    def test_empty_request_body(self):
+    def test_empty_request_body(self) -> None:
         """Test handling of empty request body"""
         response = self.client.put('/api/config/',
                                  data='',
                                  content_type='application/json')
         self.assertEqual(response.status_code, 400)
 
-    def test_none_request_body(self):
+    def test_none_request_body(self) -> None:
         """Test handling of None request body"""
         response = self.client.put('/api/config/',
                                  data=None,
                                  content_type='application/json')
         self.assertEqual(response.status_code, 400)
 
-    def test_game_data_with_empty_lists(self):
+    def test_game_data_with_empty_lists(self) -> None:
         """Test game data formatting with empty lists"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -156,7 +156,7 @@ class TestEdgeCases(unittest.TestCase):
         self.assertEqual(result.removed, [])
         self.assertEqual(result.cards_in_hands, [])
 
-    def test_game_data_with_none_values(self):
+    def test_game_data_with_none_values(self) -> None:
         """Test game data formatting with None values"""
         mock_game = MagicMock()
         mock_play = MagicMock()
@@ -180,7 +180,7 @@ class TestEdgeCases(unittest.TestCase):
         self.assertEqual(result.removed, [])
         self.assertEqual(result.cards_in_hands, [])
 
-    def test_config_manager_with_corrupted_config_file(self):
+    def test_config_manager_with_corrupted_config_file(self) -> None:
         """Test config manager with corrupted JSON file"""
         config_manager = ConfigManager()
 
@@ -191,10 +191,10 @@ class TestEdgeCases(unittest.TestCase):
         # Should handle corrupted file gracefully
         config = config_manager.load_config()
         self.assertIsNotNone(config)
-        self.assertIn('log_file_path', config)
-        self.assertIn('log_directory', config)
+        self.assertIn('log_file_path', config.model_dump())
+        self.assertIn('log_directory', config.model_dump())
 
-    def test_config_manager_with_empty_config_file(self):
+    def test_config_manager_with_empty_config_file(self) -> None:
         """Test config manager with empty config file"""
         config_manager = ConfigManager()
 
@@ -205,10 +205,10 @@ class TestEdgeCases(unittest.TestCase):
         # Should handle empty file gracefully
         config = config_manager.load_config()
         self.assertIsNotNone(config)
-        self.assertIn('log_file_path', config)
-        self.assertIn('log_directory', config)
+        self.assertIn('log_file_path', config.model_dump())
+        self.assertIn('log_directory', config.model_dump())
 
-    def test_config_manager_with_permission_error(self):
+    def test_config_manager_with_permission_error(self) -> None:
         """Test config manager with permission errors"""
         with patch('builtins.open', side_effect=PermissionError("Permission denied")):
             config_manager = ConfigManager()
@@ -216,7 +216,7 @@ class TestEdgeCases(unittest.TestCase):
             # Should return default config even with permission error
             self.assertIsNotNone(config)
 
-    def test_config_manager_with_io_error(self):
+    def test_config_manager_with_io_error(self) -> None:
         """Test config manager with IO errors"""
         with patch('builtins.open', side_effect=OSError("IO Error")):
             config_manager = ConfigManager()
@@ -224,20 +224,20 @@ class TestEdgeCases(unittest.TestCase):
             # Should return default config even with IO error
             self.assertIsNotNone(config)
 
-    def test_response_with_very_long_error_message(self):
+    def test_response_with_very_long_error_message(self) -> None:
         """Test response handling with very long error messages"""
         long_error = "x" * 10000
         error_response = GameDataFormatter.create_error_response(long_error)
         self.assertEqual(error_response.status, "error")
         self.assertEqual(error_response.error, long_error)
 
-    def test_response_with_empty_error_message(self):
+    def test_response_with_empty_error_message(self) -> None:
         """Test response handling with empty error messages"""
         error_response = GameDataFormatter.create_error_response("")
         self.assertEqual(error_response.status, "error")
         self.assertEqual(error_response.error, "")
 
-    def test_response_with_none_error_message(self):
+    def test_response_with_none_error_message(self) -> None:
         """Test response handling with None error messages"""
         error_response = GameDataFormatter.create_error_response(None)
         self.assertEqual(error_response.status, "error")

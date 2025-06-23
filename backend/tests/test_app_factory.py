@@ -16,13 +16,13 @@ from src.app import create_app
 class TestAppFactory(unittest.TestCase):
     """Test cases for the Flask application factory"""
 
-    def test_create_app_returns_flask_app(self):
+    def test_create_app_returns_flask_app(self) -> None:
         """Test that create_app returns a Flask application"""
         app = create_app()
         from flask import Flask
         self.assertIsInstance(app, Flask)
 
-    def test_create_app_registers_blueprints(self):
+    def test_create_app_registers_blueprints(self) -> None:
         """Test that create_app registers all required blueprints"""
         app = create_app()
 
@@ -31,7 +31,7 @@ class TestAppFactory(unittest.TestCase):
         self.assertIn('config', blueprint_names)
         self.assertIn('game', blueprint_names)
 
-    def test_create_app_configures_cors(self):
+    def test_create_app_configures_cors(self) -> None:
         """Test that create_app configures CORS properly"""
         app = create_app()
 
@@ -40,7 +40,7 @@ class TestAppFactory(unittest.TestCase):
             response = client.get('/api/config/')
             self.assertIn('Access-Control-Allow-Origin', response.headers)
 
-    def test_create_app_testing_mode(self):
+    def test_create_app_testing_mode(self) -> None:
         """Test that create_app works in testing mode"""
         app = create_app()
         app.testing = True
@@ -49,7 +49,7 @@ class TestAppFactory(unittest.TestCase):
             response = client.get('/api/config/')
             self.assertEqual(response.status_code, 200)
 
-    def test_app_blueprint_routes(self):
+    def test_app_blueprint_routes(self) -> None:
         """Test that all expected routes are available"""
         app = create_app()
 
@@ -68,7 +68,7 @@ class TestAppFactory(unittest.TestCase):
             response = client.get('/api/current-status')
             self.assertEqual(response.status_code, 200)
 
-    def test_app_error_handling(self):
+    def test_app_error_handling(self) -> None:
         """Test that the app handles errors gracefully"""
         app = create_app()
 
@@ -77,7 +77,7 @@ class TestAppFactory(unittest.TestCase):
             response = client.get('/api/nonexistent')
             self.assertEqual(response.status_code, 404)
 
-    def test_app_configuration(self):
+    def test_app_configuration(self) -> None:
         """Test that the app has proper configuration"""
         app = create_app()
 
@@ -85,7 +85,7 @@ class TestAppFactory(unittest.TestCase):
         self.assertTrue(hasattr(app, 'config'))
         self.assertTrue(hasattr(app, 'blueprints'))
 
-    def test_multiple_app_instances(self):
+    def test_multiple_app_instances(self) -> None:
         """Test that multiple app instances can be created"""
         app1 = create_app()
         app2 = create_app()
@@ -102,7 +102,7 @@ class TestAppFactory(unittest.TestCase):
             response2 = client2.get('/api/config/')
             self.assertEqual(response2.status_code, 200)
 
-    def test_app_with_different_environments(self):
+    def test_app_with_different_environments(self) -> None:
         """Test app creation in different environments"""
         # Test with DEBUG=1
         with patch.dict(os.environ, {'DEBUG': '1'}):
@@ -114,21 +114,23 @@ class TestAppFactory(unittest.TestCase):
             app = create_app()
             self.assertIsInstance(app, type(create_app()))
 
-    def test_app_blueprint_url_prefixes(self):
+    def test_app_blueprint_url_prefixes(self) -> None:
         """Test that blueprints have correct URL prefixes"""
         app = create_app()
 
         # Check config blueprint
         config_bp = app.blueprints.get('config')
         self.assertIsNotNone(config_bp)
-        self.assertEqual(config_bp.url_prefix, '/api/config')
+        if config_bp is not None:  # Type guard for mypy
+            self.assertEqual(config_bp.url_prefix, '/api/config')
 
         # Check game blueprint
         game_bp = app.blueprints.get('game')
         self.assertIsNotNone(game_bp)
-        self.assertEqual(game_bp.url_prefix, '/api')
+        if game_bp is not None:  # Type guard for mypy
+            self.assertEqual(game_bp.url_prefix, '/api')
 
-    def test_app_cors_headers(self):
+    def test_app_cors_headers(self) -> None:
         """Test that CORS headers are properly configured"""
         app = create_app()
 

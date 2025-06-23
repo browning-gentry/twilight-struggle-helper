@@ -15,10 +15,9 @@ from app import app, get_default_log_directory, get_latest_log_file, load_config
 class TestTwilightHelperBackend(unittest.TestCase):
     """Test cases for the Twilight Helper Backend Flask application"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures before each test method"""
         self.app = app.test_client()
-        self.app.testing = True
 
         # Create a temporary directory for test config files
         self.test_dir = tempfile.mkdtemp()
@@ -28,12 +27,12 @@ class TestTwilightHelperBackend(unittest.TestCase):
         with patch('app.CONFIG_FILE', os.path.join(self.test_dir, 'test_config.json')):
             self.test_config_file = os.path.join(self.test_dir, 'test_config.json')
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up after each test method"""
         # Remove temporary directory
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_get_config_endpoint(self):
+    def test_get_config_endpoint(self) -> None:
         """Test GET /api/config endpoint"""
         with patch('app.CONFIG_FILE', self.test_config_file):
             # Test with no existing config file
@@ -60,7 +59,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
             self.assertEqual(data['config']['log_file_path'], "/test/path/log.txt")
             self.assertEqual(data['config']['log_directory'], "/test/directory")
 
-    def test_update_config_endpoint(self):
+    def test_update_config_endpoint(self) -> None:
         """Test PUT /api/config endpoint"""
         with patch('app.CONFIG_FILE', self.test_config_file):
             # Test updating config
@@ -93,7 +92,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
             data = json.loads(response.data)
             self.assertTrue(data['success'])
 
-    def test_reset_config_endpoint(self):
+    def test_reset_config_endpoint(self) -> None:
         """Test POST /api/config/reset endpoint"""
         with patch('app.CONFIG_FILE', self.test_config_file):
             # Create an existing config file
@@ -112,7 +111,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
             self.assertIsNone(data['config']['log_file_path'])
             self.assertIn('log_directory', data['config'])
 
-    def test_test_endpoint(self):
+    def test_test_endpoint(self) -> None:
         """Test GET /api/test endpoint"""
         with patch('app.CONFIG_FILE', self.test_config_file):
             response = self.app.get('/api/test')
@@ -130,7 +129,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
 
     @patch('app.get_latest_log_file')
     @patch('app.log_parser.LogParser')
-    def test_get_current_status_endpoint_success(self, mock_parser_class, mock_get_log_file):
+    def test_get_current_status_endpoint_success(self, mock_parser_class: MagicMock, mock_get_log_file: MagicMock) -> None:
         """Test GET /api/current-status endpoint with successful log parsing"""
         # Mock the log file path
         mock_get_log_file.return_value = "/test/path/game_log.txt"
@@ -176,7 +175,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
         self.assertEqual(data['opponent_hand'], [])
 
     @patch('app.get_latest_log_file')
-    def test_get_current_status_endpoint_no_log_file(self, mock_get_log_file):
+    def test_get_current_status_endpoint_no_log_file(self, mock_get_log_file: MagicMock) -> None:
         """Test GET /api/current-status endpoint when no log file is found"""
         mock_get_log_file.return_value = None
 
@@ -195,7 +194,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
 
     @patch('app.get_latest_log_file')
     @patch('app.log_parser.LogParser')
-    def test_get_current_status_endpoint_parser_error(self, mock_parser_class, mock_get_log_file):
+    def test_get_current_status_endpoint_parser_error(self, mock_parser_class: MagicMock, mock_get_log_file: MagicMock) -> None:
         """Test GET /api/current-status endpoint when parser fails"""
         mock_get_log_file.return_value = "/test/path/game_log.txt"
 
@@ -217,7 +216,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
         self.assertEqual(data['opponentHand'], [])
 
     @patch('app.get_latest_log_file')
-    def test_get_current_status_endpoint_configured_file_not_found(self, mock_get_log_file):
+    def test_get_current_status_endpoint_configured_file_not_found(self, mock_get_log_file: MagicMock) -> None:
         """Test GET /api/current-status when configured file doesn't exist"""
         with patch('app.load_config') as mock_load_config:
             mock_load_config.return_value = {
@@ -234,7 +233,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
             self.assertIn('Configured log file not found', data['error'])
             self.assertEqual(data['filename'], 'missing_file.txt')
 
-    def test_shutdown_endpoint(self):
+    def test_shutdown_endpoint(self) -> None:
         """Test POST /api/shutdown endpoint"""
         response = self.app.post('/api/shutdown')
         self.assertIn(response.status_code, [200, 500])
@@ -245,7 +244,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
             ("error" in data)
         )
 
-    def test_shutdown_endpoint_no_werkzeug(self):
+    def test_shutdown_endpoint_no_werkzeug(self) -> None:
         """Test POST /api/shutdown endpoint when not running with Werkzeug"""
         response = self.app.post('/api/shutdown')
         self.assertEqual(response.status_code, 500)
@@ -253,7 +252,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
         self.assertIn('error', data)
         self.assertIn('Werkzeug', data['error'])
 
-    def test_load_config_function(self):
+    def test_load_config_function(self) -> None:
         """Test load_config function"""
         with patch('app.CONFIG_FILE', self.test_config_file):
             # Test loading non-existent config (should return defaults)
@@ -273,7 +272,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
             self.assertEqual(config['log_file_path'], "/test/path/log.txt")
             self.assertEqual(config['log_directory'], "/test/directory")
 
-    def test_save_config_function(self):
+    def test_save_config_function(self) -> None:
         """Test save_config function"""
         with patch('app.CONFIG_FILE', self.test_config_file):
             test_config = {
@@ -290,7 +289,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
                 saved_config = json.load(f)
             self.assertEqual(saved_config, test_config)
 
-    def test_get_default_log_directory_function(self):
+    def test_get_default_log_directory_function(self) -> None:
         """Test get_default_log_directory function"""
         directory = get_default_log_directory()
         self.assertIsInstance(directory, str)
@@ -298,7 +297,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
 
     @patch('app.load_config')
     @patch('pathlib.Path')
-    def test_get_latest_log_file_function(self, mock_path, mock_load_config):
+    def test_get_latest_log_file_function(self, mock_path: MagicMock, mock_load_config: MagicMock) -> None:
         """Test get_latest_log_file function"""
         # Mock config
         mock_load_config.return_value = {
@@ -318,13 +317,13 @@ class TestTwilightHelperBackend(unittest.TestCase):
         result = get_latest_log_file()
         self.assertIsInstance(result, str)
 
-    def test_cors_headers(self):
+    def test_cors_headers(self) -> None:
         """Test that CORS headers are properly set"""
         response = self.app.get('/api/config')
         self.assertIn('Access-Control-Allow-Origin', response.headers)
         self.assertEqual(response.headers['Access-Control-Allow-Origin'], 'http://localhost:3000')
 
-    def test_error_handling(self):
+    def test_error_handling(self) -> None:
         """Test error handling in endpoints"""
         # Test with malformed JSON in PUT request
         response = self.app.put('/api/config',
@@ -337,7 +336,7 @@ class TestTwilightHelperBackend(unittest.TestCase):
                               data=json.dumps({"test": "data"}))
         self.assertEqual(response.status_code, 400)
 
-    def test_status_endpoint(self):
+    def test_status_endpoint(self) -> None:
         """Test GET /api/status endpoint"""
         response = self.app.get('/api/status')
         self.assertEqual(response.status_code, 200)

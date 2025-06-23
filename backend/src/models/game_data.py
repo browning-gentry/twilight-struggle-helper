@@ -95,12 +95,12 @@ class GameDataFormatter:
         )
 
     @staticmethod
-    def create_error_response(error_message: str, filename: str | None = None) -> GameStatus:
+    def create_error_response(error_message: str | None, filename: str | None = None) -> GameStatus:
         """
         Create a standardized error response
 
         Args:
-            error_message: The error message to include
+            error_message: The error message to include (can be None)
             filename: Optional filename to include
 
         Returns:

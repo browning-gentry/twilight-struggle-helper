@@ -17,7 +17,7 @@ from src.models.game_data import GameDataFormatter
 class TestTwilightHelperBackendModular(unittest.TestCase):
     """Test cases for the modular Twilight Helper Backend Flask application"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures before each test method"""
         self.app = create_app()
         self.app.testing = True
@@ -32,12 +32,12 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
             self.config_manager = ConfigManager()
             self.test_config_file = self.config_manager.config_file
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up after each test method"""
         # Remove temporary directory
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_get_config_endpoint(self):
+    def test_get_config_endpoint(self) -> None:
         """Test GET /api/config endpoint"""
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = self.test_config_file
@@ -66,7 +66,7 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
             self.assertEqual(data['config']['log_file_path'], "/test/path/log.txt")
             self.assertEqual(data['config']['log_directory'], "/test/directory")
 
-    def test_update_config_endpoint(self):
+    def test_update_config_endpoint(self) -> None:
         """Test PUT /api/config endpoint"""
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = self.test_config_file
@@ -93,7 +93,7 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
             data = json.loads(response.data)
             self.assertFalse(data['success'])
 
-    def test_reset_config_endpoint(self):
+    def test_reset_config_endpoint(self) -> None:
         """Test POST /api/config/reset endpoint"""
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = self.test_config_file
@@ -114,7 +114,7 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
             self.assertIsNone(data['config']['log_file_path'])
             self.assertIn('log_directory', data['config'])
 
-    def test_test_endpoint(self):
+    def test_test_endpoint(self) -> None:
         """Test GET /api/test endpoint"""
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = self.test_config_file
@@ -134,7 +134,7 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
 
     @patch('src.utils.log_utils.get_latest_log_file')
     @patch('twilight_log_parser.log_parser.LogParser')
-    def test_get_current_status_endpoint_success(self, mock_parser_class, mock_get_log_file):
+    def test_get_current_status_endpoint_success(self, mock_parser_class: MagicMock, mock_get_log_file: MagicMock) -> None:
         """Test GET /api/current-status endpoint with successful log parsing"""
         # Mock the log file path
         mock_get_log_file.return_value = "/test/path/game_log.txt"
@@ -176,28 +176,28 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
         self.assertEqual(len(data['removed']), 1)
         self.assertEqual(len(data['cards_in_hands']), 2)
 
-    def test_cors_headers(self):
+    def test_cors_headers(self) -> None:
         """Test that CORS headers are properly set"""
         response = self.client.get('/api/config/')
         self.assertIn('Access-Control-Allow-Origin', response.headers)
         self.assertEqual(response.headers['Access-Control-Allow-Origin'], 'http://localhost:3000')
 
-    def test_game_data_formatter(self):
+    def test_game_data_formatter(self) -> None:
         """Test GameDataFormatter utility functions"""
         # Test error response creation
         error_response = GameDataFormatter.create_error_response("Test error", "test.txt")
-        self.assertIn('error', error_response)
-        self.assertEqual(error_response['error'], "Test error")
-        self.assertEqual(error_response['filename'], "test.txt")
-        self.assertEqual(error_response['deck'], [])
+        self.assertIn('error', error_response.model_dump())
+        self.assertEqual(error_response.error, "Test error")
+        self.assertEqual(error_response.filename, "test.txt")
+        self.assertEqual(error_response.deck, [])
 
         # Test no game data response creation
         no_data_response = GameDataFormatter.create_no_game_data_response("test.txt")
-        self.assertEqual(no_data_response['status'], "no game data")
-        self.assertEqual(no_data_response['filename'], "test.txt")
-        self.assertEqual(no_data_response['deck'], [])
+        self.assertEqual(no_data_response.status, "no game data")
+        self.assertEqual(no_data_response.filename, "test.txt")
+        self.assertEqual(no_data_response.deck, [])
 
-    def test_config_manager(self):
+    def test_config_manager(self) -> None:
         """Test ConfigManager functionality"""
         with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
             mock_path.return_value = self.test_config_file
@@ -205,19 +205,20 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
 
             # Test loading default config
             config = config_manager.load_config()
-            self.assertIsNone(config['log_file_path'])
-            self.assertIn('log_directory', config)
+            self.assertIsNone(config.log_file_path)
+            self.assertIsNotNone(config.log_directory)
 
             # Test saving and loading config
-            test_config = {
-                "log_file_path": "/test/path/log.txt",
-                "log_directory": "/test/directory"
-            }
+            from src.models.game_data import ConfigModel
+            test_config = ConfigModel(
+                log_file_path="/test/path/log.txt",
+                log_directory="/test/directory"
+            )
             success = config_manager.save_config(test_config)
             self.assertTrue(success)
 
             loaded_config = config_manager.load_config()
-            self.assertEqual(loaded_config['log_file_path'], "/test/path/log.txt")
+            self.assertEqual(loaded_config.log_file_path, "/test/path/log.txt")
 
 
 if __name__ == '__main__':

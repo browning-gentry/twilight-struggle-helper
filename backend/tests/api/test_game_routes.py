@@ -11,22 +11,26 @@ from unittest.mock import MagicMock, patch
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'src'))
 
 from src.api.game_routes import game_bp
+from src.models.game_data import ConfigModel
 
 
 class TestGameRoutes(unittest.TestCase):
     """Test cases for game API routes"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test client"""
         from flask import Flask
         self.app = Flask(__name__)
         self.app.register_blueprint(game_bp)
         self.client = self.app.test_client()
 
-    def test_test_endpoint(self):
+    def test_test_endpoint(self) -> None:
         """Test the test endpoint"""
         with patch('src.config.config_manager.config_manager') as mock_config_manager:
-            mock_config_manager.load_config.return_value = {"log_file_path": "test.txt"}
+            mock_config_manager.load_config.return_value = ConfigModel(
+                log_file_path="test.txt",
+                log_directory="/test/directory"
+            )
             mock_config_manager.get_default_log_directory.return_value = "/test/path"
             mock_config_manager.config_file = "/test/config.json"
 
@@ -44,7 +48,7 @@ class TestGameRoutes(unittest.TestCase):
                     self.assertEqual(data['log_dir_path'], '/test/path')
                     self.assertEqual(data['log_files_found'], 2)
 
-    def test_current_status_success(self):
+    def test_current_status_success(self) -> None:
         """Test successful current status endpoint"""
         with patch('src.api.game_routes.get_latest_log_file') as mock_get_file:
             mock_get_file.return_value = '/test/path/game.txt'
@@ -86,13 +90,16 @@ class TestGameRoutes(unittest.TestCase):
                 self.assertEqual(len(data['deck']), 1)
                 self.assertEqual(data['deck'][0]['name'], 'Cuba')
 
-    def test_current_status_no_log_files(self):
+    def test_current_status_no_log_files(self) -> None:
         """Test current status when no log files are found"""
         with patch('src.api.game_routes.get_latest_log_file') as mock_get_file:
             mock_get_file.return_value = None
 
             with patch('src.config.config_manager.config_manager') as mock_config_manager:
-                mock_config_manager.load_config.return_value = {}
+                mock_config_manager.load_config.return_value = ConfigModel(
+                    log_file_path=None,
+                    log_directory="/test/directory"
+                )
 
                 response = self.client.get('/api/current-status')
                 data = response.get_json()
@@ -101,13 +108,16 @@ class TestGameRoutes(unittest.TestCase):
                 self.assertEqual(data['status'], 'error')
                 self.assertIn('No log files found', data['error'])
 
-    def test_current_status_configured_file_not_found(self):
+    def test_current_status_configured_file_not_found(self) -> None:
         """Test current status when configured file is not found"""
         with patch('src.api.game_routes.get_latest_log_file') as mock_get_file:
             mock_get_file.return_value = None
 
             with patch('src.config.config_manager.config_manager') as mock_config_manager:
-                mock_config_manager.load_config.return_value = {"log_file_path": "/test/missing.txt"}
+                mock_config_manager.load_config.return_value = ConfigModel(
+                    log_file_path="/test/missing.txt",
+                    log_directory="/test/directory"
+                )
 
                 response = self.client.get('/api/current-status')
                 data = response.get_json()
@@ -117,7 +127,7 @@ class TestGameRoutes(unittest.TestCase):
                 self.assertIn('missing.txt', data['error'])
                 self.assertEqual(data['filename'], 'missing.txt')
 
-    def test_current_status_no_game_data(self):
+    def test_current_status_no_game_data(self) -> None:
         """Test current status when parser returns no game data"""
         with patch('src.api.game_routes.get_latest_log_file') as mock_get_file:
             mock_get_file.return_value = '/test/path/game.txt'
@@ -134,7 +144,7 @@ class TestGameRoutes(unittest.TestCase):
                 self.assertEqual(data['status'], 'no game data')
                 self.assertEqual(data['filename'], 'game.txt')
 
-    def test_current_status_parser_exception(self):
+    def test_current_status_parser_exception(self) -> None:
         """Test current status when parser raises an exception"""
         with patch('src.api.game_routes.get_latest_log_file') as mock_get_file:
             mock_get_file.return_value = '/test/path/game.txt'
@@ -151,7 +161,7 @@ class TestGameRoutes(unittest.TestCase):
                 self.assertEqual(data['status'], 'error')
                 self.assertIn('Parser error', data['error'])
 
-    def test_shutdown_endpoint(self):
+    def test_shutdown_endpoint(self) -> None:
         """Test shutdown endpoint"""
         with self.app.test_request_context():
             with patch('src.api.game_routes.request') as mock_request:
@@ -163,7 +173,7 @@ class TestGameRoutes(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(data['status'], 'shutting down')
 
-    def test_shutdown_endpoint_no_werkzeug(self):
+    def test_shutdown_endpoint_no_werkzeug(self) -> None:
         """Test shutdown endpoint when not running with Werkzeug"""
         with self.app.test_request_context():
             with patch('src.api.game_routes.request') as mock_request:
