@@ -45,8 +45,6 @@ class TestGameDataModels(unittest.TestCase):
         # Create mock game and play objects
         mock_game = MagicMock()
         mock_play = MagicMock()
-
-        # Set up mock play data
         mock_play.turn = 3
         mock_play.possible_draw_cards = ["Cuba", "Vietnam Revolts"]
         mock_play.discarded_cards = ["Duck and Cover"]

@@ -24,7 +24,8 @@ class GameStatus(BaseModel):
     model_config = ConfigDict(
         alias_generator=lambda x: "".join(
             word.capitalize() if i > 0 else word for i, word in enumerate(x.split("_"))
-        )
+        ),
+        populate_by_name=True,
     )
 
     status: str = Field(..., description="Game status (ok, error, no game data)")
