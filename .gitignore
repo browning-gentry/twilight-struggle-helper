@@ -146,4 +146,8 @@ htmlcov/
 # Data files (if any)
 output.csv
 output_states.csv
-*.txt 
+0.txt
+
+# Explicitly include requirements files
+!backend/requirements.txt
+!backend/requirements-dev.txt 

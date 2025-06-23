@@ -1,0 +1,7 @@
+flask==3.0.2
+flask-cors==4.0.0
+twilight-log-parser
+
+# Testing dependencies
+pytest==7.4.3
+pytest-cov==4.1.0
