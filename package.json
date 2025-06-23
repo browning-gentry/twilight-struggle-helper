@@ -1,0 +1,24 @@
+{
+  "name": "twilight-struggle-helper",
+  "version": "1.0.0",
+  "description": "Twilight Struggle Card Tracker - Full Stack Application",
+  "scripts": {
+    "dev": "./dev.sh",
+    "dev:win": "dev.bat",
+    "dev:backend": "cd backend && python app.py",
+    "dev:frontend": "cd frontend && PORT=3000 npm start",
+    "install:all": "npm install && cd frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "test": "cd frontend && npm test"
+  },
+  "dependencies": {
+    "@hello-pangea/dnd": "^17.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}
