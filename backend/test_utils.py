@@ -39,19 +39,19 @@ class TestUtilityFunctions(unittest.TestCase):
         result = format_play_data(mock_play, mock_game)
 
         # Verify the structure
-        self.assertEqual(result['turn'], 3)
-        self.assertEqual(len(result['deck']), 2)
-        self.assertEqual(len(result['discarded']), 1)
-        self.assertEqual(len(result['removed']), 1)
-        self.assertEqual(len(result['cards_in_hands']), 2)
-        self.assertEqual(result['your_hand'], [])
-        self.assertEqual(result['opponent_hand'], [])
+        self.assertEqual(result["turn"], 3)
+        self.assertEqual(len(result["deck"]), 2)
+        self.assertEqual(len(result["discarded"]), 1)
+        self.assertEqual(len(result["removed"]), 1)
+        self.assertEqual(len(result["cards_in_hands"]), 2)
+        self.assertEqual(result["your_hand"], [])
+        self.assertEqual(result["opponent_hand"], [])
 
         # Verify card formatting
-        cuba_card = result['deck'][0]
-        self.assertEqual(cuba_card['name'], "Cuba")
-        self.assertEqual(cuba_card['side'], "USSR")
-        self.assertEqual(cuba_card['ops'], 2)
+        cuba_card = result["deck"][0]
+        self.assertEqual(cuba_card["name"], "Cuba")
+        self.assertEqual(cuba_card["side"], "USSR")
+        self.assertEqual(cuba_card["ops"], 2)
 
     def test_format_play_data_with_missing_cards(self) -> None:
         """Test format_play_data function when cards are missing from CARDS dict"""
@@ -72,7 +72,7 @@ class TestUtilityFunctions(unittest.TestCase):
         result = format_play_data(mock_play, mock_game)
 
         # Should return the card name as string when card not found
-        self.assertEqual(result['deck'][0], "Unknown Card")
+        self.assertEqual(result["deck"][0], "Unknown Card")
 
     def test_format_play_data_with_none_ops(self) -> None:
         """Test format_play_data function when card ops is None"""
@@ -87,16 +87,14 @@ class TestUtilityFunctions(unittest.TestCase):
         mock_play.cards_in_hands = []
 
         # Card with None ops
-        mock_game.CARDS = {
-            "Test Card": MagicMock(name="Test Card", side="USSR", ops=None)
-        }
+        mock_game.CARDS = {"Test Card": MagicMock(name="Test Card", side="USSR", ops=None)}
 
         # Call the function
         result = format_play_data(mock_play, mock_game)
 
         # Should default to 0 ops
-        test_card = result['deck'][0]
-        self.assertEqual(test_card['ops'], 0)
+        test_card = result["deck"][0]
+        self.assertEqual(test_card["ops"], 0)
 
     def test_format_play_data_without_cards_attribute(self) -> None:
         """Test format_play_data function when game has no CARDS attribute"""
@@ -117,7 +115,7 @@ class TestUtilityFunctions(unittest.TestCase):
         result = format_play_data(mock_play, mock_game)
 
         # Should return card name as string
-        self.assertEqual(result['deck'][0], "Test Card")
+        self.assertEqual(result["deck"][0], "Test Card")
 
     def test_format_play_data_without_turn_attribute(self) -> None:
         """Test format_play_data function when play has no turn attribute"""
@@ -139,8 +137,8 @@ class TestUtilityFunctions(unittest.TestCase):
         result = format_play_data(mock_play, mock_game)
 
         # Should handle missing turn gracefully
-        self.assertIsNone(result['turn'])
+        self.assertIsNone(result["turn"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

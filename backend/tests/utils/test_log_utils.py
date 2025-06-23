@@ -10,10 +10,10 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Add the src directory to the path so we can import from the modular structure
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "src"))
 
-from src.utils.log_utils import get_latest_log_file, get_log_directory_info
 from src.models.game_data import ConfigModel
+from src.utils.log_utils import get_latest_log_file, get_log_directory_info
 
 
 class TestLogUtils(unittest.TestCase):
@@ -25,22 +25,23 @@ class TestLogUtils(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
 
         # Mock the config file path for testing
-        with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
-            mock_path.return_value = os.path.join(self.test_dir, 'test_config.json')
+        with patch("src.config.config_manager.ConfigManager._get_config_file_path") as mock_path:
+            mock_path.return_value = os.path.join(self.test_dir, "test_config.json")
 
     def tearDown(self) -> None:
         """Clean up after each test method"""
         # Remove temporary directory
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    @patch('src.config.config_manager.config_manager.load_config')
-    @patch('src.utils.log_utils.Path')
-    def test_get_latest_log_file_function(self, mock_path: MagicMock, mock_load_config: MagicMock) -> None:
+    @patch("src.config.config_manager.config_manager.load_config")
+    @patch("src.utils.log_utils.Path")
+    def test_get_latest_log_file_function(
+        self, mock_path: MagicMock, mock_load_config: MagicMock
+    ) -> None:
         """Test get_latest_log_file function"""
         # Mock config
         mock_load_config.return_value = ConfigModel(
-            log_file_path=None,
-            log_directory="/test/directory"
+            log_file_path=None, log_directory="/test/directory"
         )
 
         # Mock Path and its methods
@@ -66,34 +67,32 @@ class TestLogUtils(unittest.TestCase):
         if result is not None:
             self.assertIn("file2.txt", result)  # Should return the most recent file
 
-    @patch('src.config.config_manager.config_manager.load_config')
+    @patch("src.config.config_manager.config_manager.load_config")
     def test_get_latest_log_file_with_specific_file(self, mock_load_config: MagicMock) -> None:
         """Test get_latest_log_file with specific log file configured"""
         # Mock config with specific log file
         mock_load_config.return_value = ConfigModel(
-            log_file_path="/specific/path/log.txt",
-            log_directory="/test/directory"
+            log_file_path="/specific/path/log.txt", log_directory="/test/directory"
         )
 
         # Mock os.path.isabs and os.path.exists
-        with patch('os.path.isabs', return_value=True):
-            with patch('os.path.exists', return_value=True):
+        with patch("os.path.isabs", return_value=True):
+            with patch("os.path.exists", return_value=True):
                 result = get_latest_log_file()
                 self.assertEqual(result, "/specific/path/log.txt")
 
-    @patch('src.config.config_manager.config_manager.load_config')
+    @patch("src.config.config_manager.config_manager.load_config")
     def test_get_latest_log_file_with_relative_filename(self, mock_load_config: MagicMock) -> None:
         """Test get_latest_log_file with relative filename"""
         # Mock config with relative filename
         mock_load_config.return_value = ConfigModel(
-            log_file_path="relative_log.txt",
-            log_directory="/test/directory"
+            log_file_path="relative_log.txt", log_directory="/test/directory"
         )
 
         # Mock os.path.isabs and os.path.exists
-        with patch('os.path.isabs', return_value=False):
-            with patch('os.path.exists', return_value=True):
-                with patch('pathlib.Path') as mock_path:
+        with patch("os.path.isabs", return_value=False):
+            with patch("os.path.exists", return_value=True):
+                with patch("pathlib.Path") as mock_path:
                     mock_path_instance = MagicMock()
                     mock_path.return_value = mock_path_instance
                     mock_path_instance.__truediv__.return_value = "/test/directory/relative_log.txt"
@@ -102,32 +101,30 @@ class TestLogUtils(unittest.TestCase):
                     if result is not None:
                         self.assertIn("relative_log.txt", result)
 
-    @patch('src.config.config_manager.config_manager.load_config')
+    @patch("src.config.config_manager.config_manager.load_config")
     def test_get_latest_log_file_file_not_found(self, mock_load_config: MagicMock) -> None:
         """Test get_latest_log_file when configured file doesn't exist"""
         # Mock config with specific log file
         mock_load_config.return_value = ConfigModel(
-            log_file_path="/missing/path/log.txt",
-            log_directory="/test/directory"
+            log_file_path="/missing/path/log.txt", log_directory="/test/directory"
         )
 
         # Mock os.path.isabs and os.path.exists
-        with patch('os.path.isabs', return_value=True):
-            with patch('os.path.exists', return_value=False):
+        with patch("os.path.isabs", return_value=True):
+            with patch("os.path.exists", return_value=False):
                 result = get_latest_log_file()
                 self.assertIsNone(result)
 
-    @patch('src.config.config_manager.config_manager.load_config')
+    @patch("src.config.config_manager.config_manager.load_config")
     def test_get_latest_log_file_no_files_in_directory(self, mock_load_config: MagicMock) -> None:
         """Test get_latest_log_file when no log files found in directory"""
         # Mock config
         mock_load_config.return_value = ConfigModel(
-            log_file_path=None,
-            log_directory="/test/directory"
+            log_file_path=None, log_directory="/test/directory"
         )
 
         # Mock Path and its methods
-        with patch('pathlib.Path') as mock_path:
+        with patch("pathlib.Path") as mock_path:
             mock_path_instance = MagicMock()
             mock_path.return_value = mock_path_instance
             mock_path_instance.exists.return_value = True
@@ -136,17 +133,16 @@ class TestLogUtils(unittest.TestCase):
             result = get_latest_log_file()
             self.assertIsNone(result)
 
-    @patch('src.config.config_manager.config_manager.load_config')
+    @patch("src.config.config_manager.config_manager.load_config")
     def test_get_log_directory_info(self, mock_load_config: MagicMock) -> None:
         """Test get_log_directory_info function"""
         # Mock config
         mock_load_config.return_value = ConfigModel(
-            log_file_path=None,
-            log_directory="/test/directory"
+            log_file_path=None, log_directory="/test/directory"
         )
 
         # Mock Path and its methods
-        with patch('src.utils.log_utils.Path') as mock_path:
+        with patch("src.utils.log_utils.Path") as mock_path:
             mock_path_instance = MagicMock()
             mock_path.return_value = mock_path_instance
             mock_path_instance.exists.return_value = True
@@ -166,38 +162,43 @@ class TestLogUtils(unittest.TestCase):
 
             # Check that all expected fields are present
             expected_fields = [
-                'log_dir_exists', 'log_dir_path', 'platform',
-                'userprofile', 'documents_path', 'config_file_path',
-                'current_config', 'log_files_found', 'log_files'
+                "log_dir_exists",
+                "log_dir_path",
+                "platform",
+                "userprofile",
+                "documents_path",
+                "config_file_path",
+                "current_config",
+                "log_files_found",
+                "log_files",
             ]
             for field in expected_fields:
                 self.assertIn(field, result)
 
-            self.assertTrue(result['log_dir_exists'])
-            self.assertEqual(result['log_files_found'], 2)
-            self.assertEqual(len(result['log_files']), 2)
+            self.assertTrue(result["log_dir_exists"])
+            self.assertEqual(result["log_files_found"], 2)
+            self.assertEqual(len(result["log_files"]), 2)
 
-    @patch('src.utils.log_utils.config_manager.load_config')
+    @patch("src.utils.log_utils.config_manager.load_config")
     def test_get_log_directory_info_directory_not_exists(self, mock_load_config: MagicMock) -> None:
         """Test get_log_directory_info when directory doesn't exist"""
         # Mock config
         mock_load_config.return_value = ConfigModel(
-            log_file_path=None,
-            log_directory="/test/directory"
+            log_file_path=None, log_directory="/test/directory"
         )
 
         # Mock Path and its methods
-        with patch('pathlib.Path') as mock_path:
+        with patch("pathlib.Path") as mock_path:
             mock_path_instance = MagicMock()
             mock_path.return_value = mock_path_instance
             mock_path_instance.exists.return_value = False
 
             result = get_log_directory_info()
 
-            self.assertFalse(result['log_dir_exists'])
-            self.assertEqual(result['log_files_found'], 0)
-            self.assertEqual(result['log_files'], [])
+            self.assertFalse(result["log_dir_exists"])
+            self.assertEqual(result["log_files_found"], 0)
+            self.assertEqual(result["log_files"], [])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

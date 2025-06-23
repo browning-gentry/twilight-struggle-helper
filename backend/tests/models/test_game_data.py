@@ -8,9 +8,9 @@ import unittest
 from unittest.mock import MagicMock
 
 # Add the src directory to the path so we can import from the modular structure
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "src"))
 
-from src.models.game_data import Card, GameStatus, GameDataFormatter
+from src.models.game_data import Card, GameDataFormatter, GameStatus
 
 
 class TestGameDataModels(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestGameDataModels(unittest.TestCase):
             removed=[],
             cards_in_hands=[],
             your_hand=[],
-            opponent_hand=[]
+            opponent_hand=[],
         )
         self.assertEqual(status.status, "ok")
         self.assertEqual(status.filename, "test.txt")
@@ -124,9 +124,7 @@ class TestGameDataModels(unittest.TestCase):
         mock_play.cards_in_hands = []
 
         # Card with None ops
-        mock_game.CARDS = {
-            "Test Card": MagicMock(name="Test Card", side="USSR", ops=None)
-        }
+        mock_game.CARDS = {"Test Card": MagicMock(name="Test Card", side="USSR", ops=None)}
 
         # Call the function
         result = GameDataFormatter.format_play_data(mock_play, mock_game)
@@ -213,5 +211,5 @@ class TestGameDataModels(unittest.TestCase):
         self.assertEqual(no_data_response.opponent_hand, [])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

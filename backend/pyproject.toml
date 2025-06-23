@@ -18,4 +18,5 @@ exclude = [
 ]
 ignore = [
     "E501",  # Ignore line length for now (can enable later)
+    "E402",  # Ignore import not at top of file (needed for test path setup)
 ] 

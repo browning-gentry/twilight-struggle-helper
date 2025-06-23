@@ -55,7 +55,7 @@ def get_latest_log_file() -> str | None:
             return None
 
         # Get all .txt files in the directory
-        log_files = list(log_dir.glob('*.txt'))
+        log_files = list(log_dir.glob("*.txt"))
 
         if not log_files:
             logger.error("No .txt files found in log directory")
@@ -84,14 +84,14 @@ def get_log_directory_info() -> dict[str, Any]:
         "log_dir_exists": log_dir.exists(),
         "log_dir_path": str(log_dir),
         "platform": os.name,
-        "userprofile": os.environ.get('USERPROFILE', 'Not set'),
+        "userprofile": os.environ.get("USERPROFILE", "Not set"),
         "documents_path": config_manager.get_default_log_directory(),
         "config_file_path": config_manager.config_file,
-        "current_config": config.model_dump()
+        "current_config": config.model_dump(),
     }
 
     if log_dir.exists():
-        log_files = list(log_dir.glob('*.txt'))
+        log_files = list(log_dir.glob("*.txt"))
         result["log_files_found"] = len(log_files)
         result["log_files"] = [str(f) for f in log_files]
     else:

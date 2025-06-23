@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Add the src directory to the path so we can import from the modular structure
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
 
 from src.app import create_app
 from src.config.config_manager import ConfigManager
@@ -31,8 +31,8 @@ class TestEdgeCases(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
 
         # Mock the config file path for testing
-        with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
-            mock_path.return_value = os.path.join(self.test_dir, 'test_config.json')
+        with patch("src.config.config_manager.ConfigManager._get_config_file_path") as mock_path:
+            mock_path.return_value = os.path.join(self.test_dir, "test_config.json")
 
     def tearDown(self) -> None:
         """Clean up after each test method"""
@@ -41,97 +41,90 @@ class TestEdgeCases(unittest.TestCase):
 
     def test_empty_json_request(self) -> None:
         """Test handling of empty JSON in PUT requests"""
-        response = self.client.put('/api/config/',
-                                 data='{}',
-                                 content_type='application/json')
+        response = self.client.put("/api/config/", data="{}", content_type="application/json")
         self.assertEqual(response.status_code, 200)  # Should use defaults
         data = json.loads(response.data)
-        self.assertTrue(data['success'])
+        self.assertTrue(data["success"])
 
     def test_malformed_json_request(self) -> None:
         """Test handling of malformed JSON in PUT requests"""
-        response = self.client.put('/api/config/',
-                                 data='{"invalid": json}',
-                                 content_type='application/json')
+        response = self.client.put(
+            "/api/config/", data='{"invalid": json}', content_type="application/json"
+        )
         self.assertEqual(response.status_code, 400)
         data = json.loads(response.data)
-        self.assertFalse(data['success'])
+        self.assertFalse(data["success"])
 
     def test_very_large_json_request(self) -> None:
         """Test handling of very large JSON requests"""
         large_data = {
             "log_file_path": "x" * 10000,  # Very long path
-            "log_directory": "y" * 10000   # Very long directory
+            "log_directory": "y" * 10000,  # Very long directory
         }
-        response = self.client.put('/api/config/',
-                                 data=json.dumps(large_data),
-                                 content_type='application/json')
+        response = self.client.put(
+            "/api/config/", data=json.dumps(large_data), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_unicode_characters_in_config(self) -> None:
         """Test handling of unicode characters in configuration"""
         unicode_data = {
             "log_file_path": "/path/with/unicode/测试.txt",
-            "log_directory": "/directory/with/unicode/测试"
+            "log_directory": "/directory/with/unicode/测试",
         }
-        response = self.client.put('/api/config/',
-                                 data=json.dumps(unicode_data),
-                                 content_type='application/json')
+        response = self.client.put(
+            "/api/config/", data=json.dumps(unicode_data), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
-        self.assertTrue(data['success'])
+        self.assertTrue(data["success"])
 
     def test_special_characters_in_config(self) -> None:
         """Test handling of special characters in configuration"""
         special_data = {
             "log_file_path": "/path/with/special/chars/file (1).txt",
-            "log_directory": "/directory/with/spaces and special chars"
+            "log_directory": "/directory/with/spaces and special chars",
         }
-        response = self.client.put('/api/config/',
-                                 data=json.dumps(special_data),
-                                 content_type='application/json')
+        response = self.client.put(
+            "/api/config/", data=json.dumps(special_data), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_none_values_in_config(self) -> None:
         """Test handling of None values in configuration"""
         none_data = {
             "log_file_path": None,
-            "log_directory": "/test/directory"  # This can't be None, it's required
+            "log_directory": "/test/directory",  # This can't be None, it's required
         }
-        response = self.client.put('/api/config/',
-                                 data=json.dumps(none_data),
-                                 content_type='application/json')
+        response = self.client.put(
+            "/api/config/", data=json.dumps(none_data), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_missing_content_type_header(self) -> None:
         """Test handling of requests without content-type header"""
-        response = self.client.put('/api/config/',
-                                 data=json.dumps({"test": "data"}))
+        response = self.client.put("/api/config/", data=json.dumps({"test": "data"}))
         self.assertEqual(response.status_code, 415)  # Unsupported Media Type
         data = json.loads(response.data)
-        self.assertIn('error', data)
+        self.assertIn("error", data)
 
     def test_wrong_content_type_header(self) -> None:
         """Test handling of requests with wrong content-type header"""
-        response = self.client.put('/api/config/',
-                                 data=json.dumps({"test": "data"}),
-                                 content_type='text/plain')
+        response = self.client.put(
+            "/api/config/", data=json.dumps({"test": "data"}), content_type="text/plain"
+        )
         self.assertEqual(response.status_code, 415)  # Unsupported Media Type
         data = json.loads(response.data)
-        self.assertIn('error', data)
+        self.assertIn("error", data)
 
     def test_empty_request_body(self) -> None:
         """Test handling of empty request body"""
-        response = self.client.put('/api/config/',
-                                 data='',
-                                 content_type='application/json')
+        response = self.client.put("/api/config/", data="", content_type="application/json")
         self.assertEqual(response.status_code, 400)
 
     def test_none_request_body(self) -> None:
         """Test handling of None request body"""
-        response = self.client.put('/api/config/',
-                                 data=None,
-                                 content_type='application/json')
+        response = self.client.put("/api/config/", data=None, content_type="application/json")
         self.assertEqual(response.status_code, 400)
 
     def test_game_data_with_empty_lists(self) -> None:
@@ -185,32 +178,32 @@ class TestEdgeCases(unittest.TestCase):
         config_manager = ConfigManager()
 
         # Create a corrupted config file
-        with open(config_manager.config_file, 'w') as f:
+        with open(config_manager.config_file, "w") as f:
             f.write('{"invalid": json, "missing": quote}')
 
         # Should handle corrupted file gracefully
         config = config_manager.load_config()
         self.assertIsNotNone(config)
-        self.assertIn('log_file_path', config.model_dump())
-        self.assertIn('log_directory', config.model_dump())
+        self.assertIn("log_file_path", config.model_dump())
+        self.assertIn("log_directory", config.model_dump())
 
     def test_config_manager_with_empty_config_file(self) -> None:
         """Test config manager with empty config file"""
         config_manager = ConfigManager()
 
         # Create an empty config file
-        with open(config_manager.config_file, 'w') as f:
-            f.write('')
+        with open(config_manager.config_file, "w") as f:
+            f.write("")
 
         # Should handle empty file gracefully
         config = config_manager.load_config()
         self.assertIsNotNone(config)
-        self.assertIn('log_file_path', config.model_dump())
-        self.assertIn('log_directory', config.model_dump())
+        self.assertIn("log_file_path", config.model_dump())
+        self.assertIn("log_directory", config.model_dump())
 
     def test_config_manager_with_permission_error(self) -> None:
         """Test config manager with permission errors"""
-        with patch('builtins.open', side_effect=PermissionError("Permission denied")):
+        with patch("builtins.open", side_effect=PermissionError("Permission denied")):
             config_manager = ConfigManager()
             config = config_manager.load_config()
             # Should return default config even with permission error
@@ -218,7 +211,7 @@ class TestEdgeCases(unittest.TestCase):
 
     def test_config_manager_with_io_error(self) -> None:
         """Test config manager with IO errors"""
-        with patch('builtins.open', side_effect=OSError("IO Error")):
+        with patch("builtins.open", side_effect=OSError("IO Error")):
             config_manager = ConfigManager()
             config = config_manager.load_config()
             # Should return default config even with IO error
@@ -244,5 +237,5 @@ class TestEdgeCases(unittest.TestCase):
         self.assertIsNone(error_response.error)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

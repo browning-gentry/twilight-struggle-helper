@@ -6,9 +6,9 @@ import sys
 from dataclasses import dataclass
 from os.path import expanduser
 from pathlib import Path
-from typing import Any, Union, Tuple, Dict, List, Optional
+from typing import Any, Dict, Tuple, Union
 
-from flask import Flask, jsonify, request, Response
+from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
 from twilight_log_parser import log_parser
 
@@ -17,17 +17,14 @@ DEBUG = os.environ.get("DEBUG", "0") == "1"
 
 if DEBUG:
     # Create logs directory in the project root if it doesn't exist
-    logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
+    logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
     os.makedirs(logs_dir, exist_ok=True)
 
-    log_file = os.path.join(logs_dir, 'twilight-helper-backend.log')
+    log_file = os.path.join(logs_dir, "twilight-helper-backend.log")
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
-        ]
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler(log_file), logging.StreamHandler(sys.stdout)],
     )
     logger = logging.getLogger(__name__)
     logger.info(f"Logging to file: {log_file}")
@@ -38,49 +35,60 @@ else:
 
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, resources={
-    r"/api/*": {
-        "origins": ["http://localhost:3000"],
-        "methods": ["GET", "POST", "OPTIONS", "PUT"],
-        "allow_headers": ["Content-Type"],
-        "expose_headers": ["Access-Control-Allow-Origin"],
-        "supports_credentials": True
-    }
-})
+CORS(
+    app,
+    supports_credentials=True,
+    resources={
+        r"/api/*": {
+            "origins": ["http://localhost:3000"],
+            "methods": ["GET", "POST", "OPTIONS", "PUT"],
+            "allow_headers": ["Content-Type"],
+            "expose_headers": ["Access-Control-Allow-Origin"],
+            "supports_credentials": True,
+        }
+    },
+)
 
 # Get the app data directory
-if sys.platform.startswith('win'):
-    app_data_dir = os.path.join(os.environ.get('APPDATA', ''), 'Twilight Struggle Helper')
+if sys.platform.startswith("win"):
+    app_data_dir = os.path.join(os.environ.get("APPDATA", ""), "Twilight Struggle Helper")
 else:
-    app_data_dir = os.path.join(expanduser('~'), 'Library', 'Application Support', 'Twilight Struggle Helper')
+    app_data_dir = os.path.join(
+        expanduser("~"), "Library", "Application Support", "Twilight Struggle Helper"
+    )
 
 os.makedirs(app_data_dir, exist_ok=True)
-CONFIG_FILE = os.path.join(app_data_dir, 'config.json')
+CONFIG_FILE = os.path.join(app_data_dir, "config.json")
+
 
 def get_default_log_directory() -> str:
     """Get the default log directory based on platform"""
-    if sys.platform.startswith('win'):
+    if sys.platform.startswith("win"):
         # Use a more robust method to get Documents folder on Windows
         # This is equivalent to C# Environment.SpecialFolder.Personal
         try:
             import winreg
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                               r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders") as key:
+
+            with winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
+            ) as key:
                 documents = winreg.QueryValueEx(key, "Personal")[0]
         except (ImportError, FileNotFoundError, OSError):
             # Fallback to USERPROFILE\Documents if registry method fails
-            documents = os.path.join(os.environ.get('USERPROFILE', ''), 'Documents')
+            documents = os.path.join(os.environ.get("USERPROFILE", ""), "Documents")
 
-        return str(Path(documents) / 'Twilight Struggle')
+        return str(Path(documents) / "Twilight Struggle")
 
     # For macOS and Linux, use Desktop instead of Documents
-    return str(Path(expanduser('~')) / 'Desktop' / 'Twilight Struggle')
+    return str(Path(expanduser("~")) / "Desktop" / "Twilight Struggle")
+
 
 def load_config() -> dict[str, Any]:
     """Load configuration from file"""
     default_config = {
         "log_file_path": None,  # None means use default directory
-        "log_directory": get_default_log_directory()
+        "log_directory": get_default_log_directory(),
     }
 
     try:
@@ -95,15 +103,17 @@ def load_config() -> dict[str, Any]:
 
     return default_config
 
+
 def save_config(config: dict[str, Any]) -> bool:
     """Save configuration to file"""
     try:
-        with open(CONFIG_FILE, 'w') as f:
+        with open(CONFIG_FILE, "w") as f:
             json.dump(config, f, indent=2)
         return True
     except Exception as e:
         logger.error(f"Error saving config: {e}")
         return False
+
 
 def get_latest_log_file() -> str | None:
     try:
@@ -141,7 +151,7 @@ def get_latest_log_file() -> str | None:
             return None
 
         # Get all .txt files in the directory
-        log_files = list(log_dir.glob('*.txt'))
+        log_files = list(log_dir.glob("*.txt"))
 
         if not log_files:
             logger.error("No .txt files found in log directory")
@@ -155,6 +165,7 @@ def get_latest_log_file() -> str | None:
         logger.error(f"Error finding log file: {str(e)}", exc_info=True)
         return None
 
+
 def get_log_directory_info() -> dict[str, Any]:
     """Get information about the log directory and available log files"""
     config = load_config()
@@ -164,14 +175,14 @@ def get_log_directory_info() -> dict[str, Any]:
         "log_dir_exists": log_dir.exists(),
         "log_dir_path": str(log_dir),
         "platform": sys.platform,
-        "userprofile": os.environ.get('USERPROFILE', 'Not set'),
+        "userprofile": os.environ.get("USERPROFILE", "Not set"),
         "documents_path": get_default_log_directory(),
         "config_file_path": CONFIG_FILE,
-        "current_config": config
+        "current_config": config,
     }
 
     if log_dir.exists():
-        log_files = list(log_dir.glob('*.txt'))
+        log_files = list(log_dir.glob("*.txt"))
         result["log_files_found"] = len(log_files)
         result["log_files"] = [str(f) for f in log_files]
     else:
@@ -180,7 +191,8 @@ def get_log_directory_info() -> dict[str, Any]:
 
     return result
 
-@app.route('/api/config/', methods=['GET'])
+
+@app.route("/api/config/", methods=["GET"])
 def get_config() -> Union[Response, Tuple[Response, int]]:
     """Get current configuration"""
     try:
@@ -190,12 +202,15 @@ def get_config() -> Union[Response, Tuple[Response, int]]:
         logger.error(f"Error getting config: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/api/config/', methods=['PUT'])
+
+@app.route("/api/config/", methods=["PUT"])
 def update_config() -> Union[Response, Tuple[Response, int]]:
     """Update configuration"""
     try:
         if not request.is_json:
-            return jsonify({"success": False, "error": "Content-Type must be application/json"}), 415
+            return jsonify(
+                {"success": False, "error": "Content-Type must be application/json"}
+            ), 415
         try:
             data = request.get_json(force=True)
         except Exception:
@@ -223,14 +238,12 @@ def update_config() -> Union[Response, Tuple[Response, int]]:
         logger.error(f"Error updating config: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/api/config/reset', methods=['POST'])
+
+@app.route("/api/config/reset", methods=["POST"])
 def reset_config() -> Union[Response, Tuple[Response, int]]:
     """Reset configuration to defaults"""
     try:
-        default_config = {
-            "log_file_path": None,
-            "log_directory": get_default_log_directory()
-        }
+        default_config = {"log_file_path": None, "log_directory": get_default_log_directory()}
 
         if save_config(default_config):
             return jsonify({"success": True, "config": default_config})
@@ -241,7 +254,8 @@ def reset_config() -> Union[Response, Tuple[Response, int]]:
         logger.error(f"Error resetting config: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/api/test', methods=['GET'])
+
+@app.route("/api/test", methods=["GET"])
 def test_endpoint() -> Union[Response, Tuple[Response, int]]:
     """Test endpoint to debug issues"""
     try:
@@ -252,14 +266,14 @@ def test_endpoint() -> Union[Response, Tuple[Response, int]]:
             "log_dir_exists": log_dir.exists(),
             "log_dir_path": str(log_dir),
             "platform": sys.platform,
-            "userprofile": os.environ.get('USERPROFILE', 'Not set'),
+            "userprofile": os.environ.get("USERPROFILE", "Not set"),
             "documents_path": get_default_log_directory(),
             "config_file_path": CONFIG_FILE,
-            "current_config": config
+            "current_config": config,
         }
 
         if log_dir.exists():
-            log_files = list(log_dir.glob('*.txt'))
+            log_files = list(log_dir.glob("*.txt"))
             result["log_files_found"] = len(log_files)
             result["log_files"] = [str(f) for f in log_files]
         else:
@@ -270,9 +284,10 @@ def test_endpoint() -> Union[Response, Tuple[Response, int]]:
     except Exception as e:
         return jsonify({"error": str(e), "traceback": str(e.__traceback__)}), 500
 
-@app.route('/api/current-status', methods=['GET'])
+
+@app.route("/api/current-status", methods=["GET"])
 def get_current_status() -> Union[Response, Tuple[Response, int]]:
-    logger.debug('Received request for current status')
+    logger.debug("Received request for current status")
     try:
         config = load_config()
         filepath = get_latest_log_file()
@@ -280,29 +295,33 @@ def get_current_status() -> Union[Response, Tuple[Response, int]]:
         # If a specific file is configured but doesn't exist, return error with that filename
         if config.get("log_file_path") and not filepath:
             configured_filename = os.path.basename(config["log_file_path"])
-            return jsonify({
-                "error": f"Configured log file not found: {configured_filename}",
-                "filename": configured_filename,
-                "deck": [],
-                "discarded": [],
-                "removed": [],
-                "cards_in_hands": [],
-                "your_hand": [],
-                "opponent_hand": []
-            })
+            return jsonify(
+                {
+                    "error": f"Configured log file not found: {configured_filename}",
+                    "filename": configured_filename,
+                    "deck": [],
+                    "discarded": [],
+                    "removed": [],
+                    "cards_in_hands": [],
+                    "your_hand": [],
+                    "opponent_hand": [],
+                }
+            )
 
         if not filepath:
-            logger.error('No log files found')
-            return jsonify({
-                "error": "No log files found in Twilight Struggle directory",
-                "filename": None,
-                "deck": [],
-                "discarded": [],
-                "removed": [],
-                "cards_in_hands": [],
-                "your_hand": [],
-                "opponent_hand": []
-            })
+            logger.error("No log files found")
+            return jsonify(
+                {
+                    "error": "No log files found in Twilight Struggle directory",
+                    "filename": None,
+                    "deck": [],
+                    "discarded": [],
+                    "removed": [],
+                    "cards_in_hands": [],
+                    "your_hand": [],
+                    "opponent_hand": [],
+                }
+            )
 
         # Extract just the filename from the full path
         filename = os.path.basename(filepath)
@@ -310,53 +329,56 @@ def get_current_status() -> Union[Response, Tuple[Response, int]]:
         parser = log_parser.LogParser()
         game = parser.parse_game_log(filepath)
         if not game:
-            return jsonify({
-                "status": "no game data",
-                "filename": filename,
+            return jsonify(
+                {
+                    "status": "no game data",
+                    "filename": filename,
+                    "deck": [],
+                    "discarded": [],
+                    "removed": [],
+                    "cards_in_hands": [],
+                    "your_hand": [],
+                    "opponent_hand": [],
+                }
+            )
+
+        # Show current state
+        play_data = format_play_data(game.current_play, game)
+        return jsonify({"status": "ok", "filename": filename, **play_data})
+    except Exception as e:
+        logger.error(f"Error in get_current_status: {str(e)}", exc_info=True)
+        return jsonify(
+            {
+                "error": str(e),
+                "filename": None,
                 "deck": [],
                 "discarded": [],
                 "removed": [],
                 "cards_in_hands": [],
                 "your_hand": [],
-                "opponent_hand": []
-            })
+                "opponent_hand": [],
+            }
+        ), 500
 
-        # Show current state
-        play_data = format_play_data(game.current_play, game)
-        return jsonify({
-            "status": "ok",
-            "filename": filename,
-            **play_data
-        })
-    except Exception as e:
-        logger.error(f"Error in get_current_status: {str(e)}", exc_info=True)
-        return jsonify({
-            "error": str(e),
-            "filename": None,
-            "deck": [],
-            "discarded": [],
-            "removed": [],
-            "cards_in_hands": [],
-            "your_hand": [],
-            "opponent_hand": []
-        }), 500
 
-@app.route('/api/shutdown', methods=['POST'])
+@app.route("/api/shutdown", methods=["POST"])
 def shutdown() -> Union[Response, Tuple[Response, int]]:
     """Shutdown the server gracefully"""
     try:
         # This will only work if running with Werkzeug
-        func = request.environ.get('werkzeug.server.shutdown')
+        func = request.environ.get("werkzeug.server.shutdown")
         if func is None:
-            raise RuntimeError('Not running with the Werkzeug Server')
+            raise RuntimeError("Not running with the Werkzeug Server")
         func()
         return jsonify({"status": "shutting down"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/status', methods=['GET'])
+
+@app.route("/api/status", methods=["GET"])
 def status() -> Response:
     return jsonify({"status": "ok"})
+
 
 @dataclass
 class CardData:
@@ -364,10 +386,12 @@ class CardData:
     side: str
     ops: int
 
+
 def format_play_data(play: Any, game: Any) -> Dict[str, Any]:
     """Format play data to match frontend expectations"""
+
     def format_card(card_name: str) -> Dict[str, Any]:
-        if not hasattr(game, 'CARDS'):
+        if not hasattr(game, "CARDS"):
             return {"name": card_name, "side": "unknown", "ops": 0}
         card = game.CARDS.get(card_name)
         if not card:
@@ -376,28 +400,25 @@ def format_play_data(play: Any, game: Any) -> Dict[str, Any]:
 
         # Get ops value, defaulting to 0 if None or not present
         ops = 0
-        if hasattr(card, 'ops'):
+        if hasattr(card, "ops"):
             ops = card.ops if card.ops is not None else 0
 
         # Log card details for debugging
         logger.debug(f"Formatting card: {card.name} (side: {card.side}, ops: {ops})")
 
         # Return structured card data
-        return {
-            "name": card.name,
-            "side": card.side,
-            "ops": ops
-        }
+        return {"name": card.name, "side": card.side, "ops": ops}
 
     return {
-        "turn": play.turn if hasattr(play, 'turn') else None,
+        "turn": play.turn if hasattr(play, "turn") else None,
         "deck": [format_card(card) for card in play.possible_draw_cards],
         "discarded": [format_card(card) for card in play.discarded_cards],
         "removed": [format_card(card) for card in play.removed_cards],
         "cards_in_hands": [format_card(card) for card in play.cards_in_hands],
         "your_hand": [],
-        "opponent_hand": []
+        "opponent_hand": [],
     }
+
 
 def signal_handler(signum: int, frame: Any) -> None:
     """Handle shutdown signals gracefully"""
@@ -405,10 +426,11 @@ def signal_handler(signum: int, frame: Any) -> None:
     print("Shutting down server...", flush=True)
     sys.exit(0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Set up signal handlers for graceful shutdown (important for Windows/Electron)
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
     # Start Flask on port 8000 with debug mode disabled
-    app.run(host='0.0.0.0', port=8000, debug=False)
+    app.run(host="0.0.0.0", port=8000, debug=False)

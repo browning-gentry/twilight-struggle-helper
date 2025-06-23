@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Add the src directory to the path so we can import from the modular structure
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
 
 from src.app import create_app
 
@@ -29,8 +29,8 @@ class TestIntegration(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
 
         # Mock the config file path for testing
-        with patch('src.config.config_manager.ConfigManager._get_config_file_path') as mock_path:
-            mock_path.return_value = os.path.join(self.test_dir, 'test_config.json')
+        with patch("src.config.config_manager.ConfigManager._get_config_file_path") as mock_path:
+            mock_path.return_value = os.path.join(self.test_dir, "test_config.json")
 
     def tearDown(self) -> None:
         """Clean up after each test method"""
@@ -40,36 +40,35 @@ class TestIntegration(unittest.TestCase):
     def test_full_config_workflow(self) -> None:
         """Test the complete configuration workflow"""
         # 1. Get initial config
-        response = self.client.get('/api/config/')
+        response = self.client.get("/api/config/")
         self.assertEqual(response.status_code, 200)
 
         # 2. Update config
-        new_config = {
-            "log_file_path": "/test/path/log.txt",
-            "log_directory": "/test/directory"
-        }
-        response = self.client.put('/api/config/',
-                                 data=json.dumps(new_config),
-                                 content_type='application/json')
+        new_config = {"log_file_path": "/test/path/log.txt", "log_directory": "/test/directory"}
+        response = self.client.put(
+            "/api/config/", data=json.dumps(new_config), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
-        updated_config = json.loads(response.data)['config']
-        self.assertEqual(updated_config['log_file_path'], "/test/path/log.txt")
+        updated_config = json.loads(response.data)["config"]
+        self.assertEqual(updated_config["log_file_path"], "/test/path/log.txt")
 
         # 3. Verify config was saved by getting it again
-        response = self.client.get('/api/config/')
+        response = self.client.get("/api/config/")
         self.assertEqual(response.status_code, 200)
-        saved_config = json.loads(response.data)['config']
-        self.assertEqual(saved_config['log_file_path'], "/test/path/log.txt")
+        saved_config = json.loads(response.data)["config"]
+        self.assertEqual(saved_config["log_file_path"], "/test/path/log.txt")
 
         # 4. Reset config
-        response = self.client.post('/api/config/reset')
+        response = self.client.post("/api/config/reset")
         self.assertEqual(response.status_code, 200)
-        reset_config = json.loads(response.data)['config']
-        self.assertIsNone(reset_config['log_file_path'])
+        reset_config = json.loads(response.data)["config"]
+        self.assertIsNone(reset_config["log_file_path"])
 
-    @patch('src.utils.log_utils.get_latest_log_file')
-    @patch('twilight_log_parser.log_parser.LogParser')
-    def test_full_game_status_workflow(self, mock_parser_class: MagicMock, mock_get_log_file: MagicMock) -> None:
+    @patch("src.utils.log_utils.get_latest_log_file")
+    @patch("twilight_log_parser.log_parser.LogParser")
+    def test_full_game_status_workflow(
+        self, mock_parser_class: MagicMock, mock_get_log_file: MagicMock
+    ) -> None:
         """Test the complete game status workflow"""
         # Mock successful log parsing
         mock_get_log_file.return_value = "/test/path/game_log.txt"
@@ -99,40 +98,38 @@ class TestIntegration(unittest.TestCase):
         mock_parser_class.return_value = mock_parser
 
         # 1. Get system info
-        response = self.client.get('/api/config/')
+        response = self.client.get("/api/config/")
         self.assertEqual(response.status_code, 200)
 
         # 2. Get game status
-        response = self.client.get('/api/current-status')
+        response = self.client.get("/api/current-status")
         self.assertEqual(response.status_code, 200)
         game_status = json.loads(response.data)
-        self.assertEqual(game_status['status'], 'ok')
-        self.assertIn('filename', game_status)
+        self.assertEqual(game_status["status"], "ok")
+        self.assertIn("filename", game_status)
 
     def test_cors_headers_across_all_endpoints(self) -> None:
         """Test that CORS headers are properly set across all endpoints"""
-        endpoints = [
-            '/api/config/',
-            '/api/test',
-            '/api/current-status'
-        ]
+        endpoints = ["/api/config/", "/api/test", "/api/current-status"]
 
         for endpoint in endpoints:
             response = self.client.get(endpoint)
-            self.assertIn('Access-Control-Allow-Origin', response.headers)
-            self.assertEqual(response.headers['Access-Control-Allow-Origin'], 'http://localhost:3000')
+            self.assertIn("Access-Control-Allow-Origin", response.headers)
+            self.assertEqual(
+                response.headers["Access-Control-Allow-Origin"], "http://localhost:3000"
+            )
 
     def test_error_propagation_across_modules(self) -> None:
         """Test that errors propagate correctly across modules"""
         # Test config error propagation
-        with patch('src.config.config_manager.ConfigManager.load_config') as mock_load:
+        with patch("src.config.config_manager.ConfigManager.load_config") as mock_load:
             mock_load.side_effect = Exception("Config error")
 
-            response = self.client.get('/api/config/')
+            response = self.client.get("/api/config/")
             self.assertEqual(response.status_code, 500)
             data = json.loads(response.data)
-            self.assertFalse(data['success'])
-            self.assertIn('Config error', data['error'])
+            self.assertFalse(data["success"])
+            self.assertIn("Config error", data["error"])
 
     def test_multiple_concurrent_requests(self) -> None:
         """Test handling of multiple concurrent requests"""
@@ -143,7 +140,7 @@ class TestIntegration(unittest.TestCase):
 
         def make_request() -> None:
             try:
-                response = self.client.get('/api/config/')
+                response = self.client.get("/api/config/")
                 results.append(response.status_code)
             except Exception as e:
                 errors.append(str(e))
@@ -166,5 +163,5 @@ class TestIntegration(unittest.TestCase):
             self.assertEqual(status_code, 200)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
