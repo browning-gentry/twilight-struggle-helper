@@ -13,6 +13,50 @@ A modern, real-time card tracking application for the Twilight Struggle board ga
 
 This app is an attempt at building something relatively simple, almost entirely vibe-coded. Wanted to see what Cursor could do.
 
+## 📥 Download & Installation
+
+**Step 1: Download the App**
+1. Go to the [Releases page](https://github.com/bennettgentry/twilight-struggle-helper/releases)
+2. Click on the latest release (the one at the top)
+3. Scroll down to "Assets" and click on:
+   - **Windows**: `Twilight Struggle Helper Setup.exe`
+   - **Mac**: `Twilight Struggle Helper.dmg`
+4. Save the file to your Downloads folder
+
+**Step 2: Install the App**
+1. Go to your Downloads folder
+2. Double-click on `Twilight Struggle Helper Setup.exe`
+3. If Windows shows a warning, click "More info" then "Run anyway"
+4. Follow the installation wizard (just click "Next" and "Install")
+5. The app will be installed to your Start Menu and Desktop
+
+**Step 3: Install the Required Mod**
+1. Go to [TSEspionage Mod](https://github.com/xelrach/TSEspionage)
+2. Download the latest release ZIP file
+3. Extract the ZIP file contents directly into your Twilight Struggle game folder
+4. Your Twilight Struggle folder should now have a "TSEspionage" folder inside it
+
+**Step 4: Run the Helper**
+1. Start Twilight Struggle and begin a game
+2. Open the Twilight Struggle Helper from your Start Menu or Desktop
+3. The helper will automatically detect your game and start tracking cards!
+
+**Step 5: Configure Log File Location (Important!)**
+1. In the Twilight Struggle Helper app, click the ⚙️ (gear) icon in the top-right corner
+2. In the settings popup, click "Browse" next to "Log Directory"
+3. Navigate to your Documents folder and look for a "Twilight Struggle" folder
+4. Select the folder that contains your game log files and click "Select Folder"
+5. Click "Save" in the settings popup
+6. The app will automatically use the most recent log file in the directory
+7. **Optional**: You can also select a specific log file by clicking "Browse" next to "Log File" if you want to load a particular game
+
+**⚠️ Important Notes:**
+- The executable is unsigned (normal for open-source apps)
+- Windows may show security warnings - this is expected
+- You can safely click "Run anyway" or "More info" → "Run anyway"
+- If your antivirus blocks it, add it to your whitelist
+- **Make sure to configure the log directory or the app won't work!**
+
 ## ✨ Features
 
 - **🔄 Real-time Updates**: Automatically polls game logs for live updates
