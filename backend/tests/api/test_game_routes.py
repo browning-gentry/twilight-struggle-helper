@@ -41,11 +41,10 @@ class TestGameRoutes(unittest.TestCase):
     def test_test_endpoint(self) -> None:
         """Test the test endpoint"""
         # Set up config
-        test_config = ConfigModel(
-            log_file_path="test.txt", log_directory="/test/directory"
-        )
+        test_config = ConfigModel(log_file_path="test.txt", log_directory="/test/directory")
         with open(self.test_config_file, "w") as f:
             import json
+
             json.dump(test_config.model_dump(), f)
 
         with patch("os.path.exists") as mock_exists:
@@ -69,6 +68,7 @@ class TestGameRoutes(unittest.TestCase):
         )
         with open(self.test_config_file, "w") as f:
             import json
+
             json.dump(test_config.model_dump(), f)
 
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
@@ -112,11 +112,10 @@ class TestGameRoutes(unittest.TestCase):
     def test_current_status_no_log_files(self) -> None:
         """Test current status when no log files are found"""
         # Set up config with no log file path
-        test_config = ConfigModel(
-            log_file_path=None, log_directory="/test/directory"
-        )
+        test_config = ConfigModel(log_file_path=None, log_directory="/test/directory")
         with open(self.test_config_file, "w") as f:
             import json
+
             json.dump(test_config.model_dump(), f)
 
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
@@ -137,6 +136,7 @@ class TestGameRoutes(unittest.TestCase):
         )
         with open(self.test_config_file, "w") as f:
             import json
+
             json.dump(test_config.model_dump(), f)
 
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
@@ -157,6 +157,7 @@ class TestGameRoutes(unittest.TestCase):
         )
         with open(self.test_config_file, "w") as f:
             import json
+
             json.dump(test_config.model_dump(), f)
 
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
@@ -182,6 +183,7 @@ class TestGameRoutes(unittest.TestCase):
         )
         with open(self.test_config_file, "w") as f:
             import json
+
             json.dump(test_config.model_dump(), f)
 
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:

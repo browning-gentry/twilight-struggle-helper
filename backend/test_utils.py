@@ -32,6 +32,7 @@ class TestUtilityFunctions(unittest.TestCase):
             card.side = side
             card.ops = ops
             return card
+
         mock_game.CARDS = {
             "Cuba": make_card("Cuba", "USSR", 2),
             "Vietnam Revolts": make_card("Vietnam Revolts", "USSR", 1),

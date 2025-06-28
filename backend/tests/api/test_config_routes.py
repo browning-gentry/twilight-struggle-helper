@@ -51,8 +51,7 @@ class TestConfigRoutes(unittest.TestCase):
         expected_default = "/default/directory"
         actual_default = data["config"]["log_directory"]
         self.assertTrue(
-            actual_default == expected_default
-            or actual_default.endswith("Twilight Struggle")
+            actual_default == expected_default or actual_default.endswith("Twilight Struggle")
         )
 
         # Test with existing config file

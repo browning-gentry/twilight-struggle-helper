@@ -9,7 +9,9 @@
     "dev:frontend": "cd frontend && PORT=3000 npm start",
     "install:all": "npm install && cd frontend && npm install",
     "build": "cd frontend && npm run build",
-    "test": "cd frontend && npm test"
+    "test": "cd frontend && npm test",
+    "ruff": "cd backend && ruff . --fix --format",
+    "ruff:check": "cd backend && ruff check . --diff && ruff format . --check"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0"

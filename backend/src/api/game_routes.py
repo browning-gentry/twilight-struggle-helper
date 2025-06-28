@@ -38,7 +38,7 @@ def handle_not_found(e: Exception) -> tuple[Response, int]:
 def test_endpoint(*args: Any, **kwargs: Any) -> Response | tuple[Response, int]:
     """Test endpoint to debug issues"""
     try:
-        config_manager = current_app.config['CONFIG_MANAGER']
+        config_manager = current_app.config["CONFIG_MANAGER"]
         config: ConfigModel = config_manager.load_config()
         log_dir = config_manager.get_default_log_directory()
         result: dict[str, Any] = {
@@ -69,7 +69,7 @@ def get_current_status(*args: Any, **kwargs: Any) -> Response | tuple[Response, 
     """Get current game status from log file"""
     logger.debug("Received request for current status")
     try:
-        config_manager = current_app.config['CONFIG_MANAGER']
+        config_manager = current_app.config["CONFIG_MANAGER"]
         config: ConfigModel = config_manager.load_config()
         filepath = get_latest_log_file()
         if config.log_file_path and not filepath:

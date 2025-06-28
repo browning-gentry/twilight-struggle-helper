@@ -45,9 +45,10 @@ def create_app(config_manager: Optional[ConfigManager] = None) -> Flask:
     # Store config manager in app config for dependency injection
     if config_manager is None:
         from .config.config_manager import config_manager as default_config_manager
-        app.config['CONFIG_MANAGER'] = default_config_manager
+
+        app.config["CONFIG_MANAGER"] = default_config_manager
     else:
-        app.config['CONFIG_MANAGER'] = config_manager
+        app.config["CONFIG_MANAGER"] = config_manager
 
     # Configure CORS
     CORS(
