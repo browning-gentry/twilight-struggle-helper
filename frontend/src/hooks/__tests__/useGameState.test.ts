@@ -233,7 +233,9 @@ describe('useGameState', () => {
         expect(result.current.currentFilename).toBe('file.log');
         expect(result.current.gameStatus.status).toBe('active');
         expect(result.current.gameStatus.turn).toBe(2);
-        expect(result.current.gameStatus.deck).toEqual([{ name: 'A', side: 'US' as const, ops: 1 }]);
+        expect(result.current.gameStatus.deck).toEqual([
+            { name: 'A', side: 'US' as const, ops: 1 },
+        ]);
     });
 
     it('handleResetState resets hands', async () => {

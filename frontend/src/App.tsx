@@ -49,7 +49,7 @@ const App: React.FC = (): JSX.Element => {
         let cancelled = false;
         let attempts = 0;
         const maxAttempts = 20; // 10 seconds if interval is 500ms
-        
+
         const checkBackend = async () => {
             try {
                 const res = await fetch('http://localhost:8000/api/status');
@@ -73,7 +73,9 @@ const App: React.FC = (): JSX.Element => {
             }
         };
         checkBackend();
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     if (backendStatus === 'loading') {
@@ -84,9 +86,7 @@ const App: React.FC = (): JSX.Element => {
                     <h1 className="app-title">Twilight Struggle Helper</h1>
                 </div>
                 <div className="spinner" />
-                <div className="loading-text">
-                    Application loading...
-                </div>
+                <div className="loading-text">Application loading...</div>
             </div>
         );
     }
@@ -97,8 +97,12 @@ const App: React.FC = (): JSX.Element => {
                     <img src={logo} alt="Twilight Struggle Helper" className="app-logo" />
                     <h1 className="app-title">Twilight Struggle Helper</h1>
                 </div>
-                <div className="error-message" style={{ margin: '2rem', fontSize: '1.5rem', color: 'red' }}>
-                    Failed to connect to backend. Please ensure the backend is running.<br />
+                <div
+                    className="error-message"
+                    style={{ margin: '2rem', fontSize: '1.5rem', color: 'red' }}
+                >
+                    Failed to connect to backend. Please ensure the backend is running.
+                    <br />
                     Try restarting the app.
                 </div>
             </div>

@@ -1,40 +1,40 @@
 .App {
-  text-align: center;
+    text-align: center;
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+    height: 40vmin;
+    pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
 }
 
 .App-link {
-  color: #61dafb;
+    color: #61dafb;
 }
 
 @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .app {
@@ -92,13 +92,13 @@
     border-radius: 6px;
     font-size: 0.9rem;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     outline: none;
 }
 
 .setup input:focus {
     border-color: #4a90e2;
-    box-shadow: 0 1px 3px rgba(74,144,226,0.2);
+    box-shadow: 0 1px 3px rgba(74, 144, 226, 0.2);
 }
 
 .setup button {
@@ -110,7 +110,7 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .setup button:hover:not(:disabled) {
@@ -144,12 +144,12 @@
 .game-layout {
     display: grid;
     grid-template-areas:
-        "hands hands hands"
-        "deck deck deck"
-        "bottom bottom bottom";
+        'hands hands hands'
+        'deck deck deck'
+        'bottom bottom bottom';
     gap: 10px;
     max-width: 1200px;
-    min-width: 600px;  /* Minimum width before horizontal scroll */
+    min-width: 600px; /* Minimum width before horizontal scroll */
 }
 
 .hands {
@@ -157,10 +157,10 @@
     display: flex;
     gap: 10px;
     justify-content: space-between;
-    min-width: 0;  /* Allow flex items to shrink below min-content */
+    min-width: 0; /* Allow flex items to shrink below min-content */
     & > * {
         flex: 1;
-        min-width: 150px;  /* Smaller minimum width for hand columns */
+        min-width: 150px; /* Smaller minimum width for hand columns */
     }
 }
 
@@ -213,24 +213,27 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    min-width: 0;  /* Allow columns to shrink */
+    min-width: 0; /* Allow columns to shrink */
     & > * {
-        min-width: 120px;  /* Smaller minimum width for deck columns */
+        min-width: 120px; /* Smaller minimum width for deck columns */
     }
 }
 
 /* Subtle background tints for deck sections */
-.deck-area .card-list:nth-child(1) {  /* US section */
+.deck-area .card-list:nth-child(1) {
+    /* US section */
     background: #f8fbff;
     border: 1px solid #cce5ff;
 }
 
-.deck-area .card-list:nth-child(2) {  /* USSR section */
+.deck-area .card-list:nth-child(2) {
+    /* USSR section */
     background: #fff8f8;
     border: 1px solid #ffcdd2;
 }
 
-.deck-area .card-list:nth-child(3) {  /* Neutral section */
+.deck-area .card-list:nth-child(3) {
+    /* Neutral section */
     background: #f9f9f9;
     border: 1px solid #e0e0e0;
 }
@@ -240,12 +243,12 @@
     display: flex;
     gap: 10px;
     justify-content: space-between;
-    min-width: 0;  /* Allow flex items to shrink below min-content */
+    min-width: 0; /* Allow flex items to shrink below min-content */
 }
 
 .bottom-area .card-list {
     flex: 1;
-    max-width: calc(50% - 10px);  /* 50% minus half of the gap */
+    max-width: calc(50% - 10px); /* 50% minus half of the gap */
 }
 
 .card-list {
@@ -253,7 +256,7 @@
     padding: 6px;
     border-radius: 4px;
     flex: 1;
-    min-width: 0;  /* Allow content to shrink */
+    min-width: 0; /* Allow content to shrink */
 }
 
 .card-list-header {
@@ -311,7 +314,7 @@
     background: white;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .sort-select:hover {
@@ -365,7 +368,7 @@
 
 .card-text {
     flex: 1;
-    min-width: 0;  /* Allow text to shrink */
+    min-width: 0; /* Allow text to shrink */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -390,47 +393,51 @@
 }
 
 /* Region-specific scoring card colors */
-.card[class*="scoring"].europe-scoring {
-    background: linear-gradient(135deg,
-        rgb(165,153,202) 0%, 
-        rgb(165,153,202) 49%, 
-        rgb(200,190,230) 51%, 
-        rgb(200,190,230) 100%);
-    border-color: rgb(165,153,202);
+.card[class*='scoring'].europe-scoring {
+    background: linear-gradient(
+        135deg,
+        rgb(165, 153, 202) 0%,
+        rgb(165, 153, 202) 49%,
+        rgb(200, 190, 230) 51%,
+        rgb(200, 190, 230) 100%
+    );
+    border-color: rgb(165, 153, 202);
 }
 
-.card[class*="scoring"].middle-east-scoring {
-    background: rgb(169,213,241);
-    border-color: rgb(139,183,211);
+.card[class*='scoring'].middle-east-scoring {
+    background: rgb(169, 213, 241);
+    border-color: rgb(139, 183, 211);
 }
 
-.card[class*="scoring"].asia-scoring {
-    background: rgb(240,171,64);
-    border-color: rgb(210,141,34);
+.card[class*='scoring'].asia-scoring {
+    background: rgb(240, 171, 64);
+    border-color: rgb(210, 141, 34);
 }
 
-.card[class*="scoring"].central-america-scoring {
-    background: rgb(216,223,161);
-    border-color: rgb(186,193,131);
+.card[class*='scoring'].central-america-scoring {
+    background: rgb(216, 223, 161);
+    border-color: rgb(186, 193, 131);
 }
 
-.card[class*="scoring"].south-america-scoring {
-    background: rgb(160,201,136);
-    border-color: rgb(130,171,106);
+.card[class*='scoring'].south-america-scoring {
+    background: rgb(160, 201, 136);
+    border-color: rgb(130, 171, 106);
 }
 
-.card[class*="scoring"].africa-scoring {
-    background: rgb(254,235,149);
-    border-color: rgb(224,205,119);
+.card[class*='scoring'].africa-scoring {
+    background: rgb(254, 235, 149);
+    border-color: rgb(224, 205, 119);
 }
 
-.card[class*="scoring"].southeast-asia-scoring {
-    background: linear-gradient(135deg,
-        rgb(242,165,30) 0%, 
-        rgb(242,165,30) 49%, 
-        rgb(225,213,4) 51%, 
-        rgb(225,213,4) 100%);
-    border-color: rgb(242,165,30);
+.card[class*='scoring'].southeast-asia-scoring {
+    background: linear-gradient(
+        135deg,
+        rgb(242, 165, 30) 0%,
+        rgb(242, 165, 30) 49%,
+        rgb(225, 213, 4) 51%,
+        rgb(225, 213, 4) 100%
+    );
+    border-color: rgb(242, 165, 30);
 }
 
 .setup > * {
@@ -438,10 +445,10 @@
 }
 
 .add-to-hand-button {
-    flex-shrink: 0;  /* Prevent button from shrinking */
+    flex-shrink: 0; /* Prevent button from shrinking */
     background: none;
     border: none;
-    color: #2e7d32;  /* Material Design Green 800 - darker base color */
+    color: #2e7d32; /* Material Design Green 800 - darker base color */
     font-size: 1.1em;
     font-weight: bold;
     padding: 0 2px;
@@ -453,7 +460,7 @@
 .add-to-hand-button:hover {
     opacity: 1;
     transform: scale(1.1);
-    color: #1b5e20;  /* Material Design Green 900 - even darker on hover */
+    color: #1b5e20; /* Material Design Green 900 - even darker on hover */
 }
 
 .filename-display {
@@ -519,8 +526,12 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .loading-text {
