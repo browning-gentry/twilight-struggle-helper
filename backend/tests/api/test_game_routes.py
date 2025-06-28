@@ -20,11 +20,11 @@ class TestGameRoutes(unittest.TestCase):
         # Create a temporary directory for test config files
         self.temp_dir = tempfile.mkdtemp()
         self.test_config_file = os.path.join(self.temp_dir, "test_config.json")
-        
+
         # Create a test-specific config manager
         self.test_config_manager = ConfigManager()
         self.test_config_manager.config_file = self.test_config_file
-        
+
         # Create app with test config manager
         self.app = create_app(config_manager=self.test_config_manager)
         self.app.testing = True

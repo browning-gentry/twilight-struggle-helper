@@ -20,11 +20,11 @@ class TestConfigRoutes(unittest.TestCase):
         # Create a temporary directory for test config files
         self.temp_dir = tempfile.mkdtemp()
         self.test_config_file = os.path.join(self.temp_dir, "test_config.json")
-        
+
         # Create a test-specific config manager
         self.test_config_manager = ConfigManager()
         self.test_config_manager.config_file = self.test_config_file
-        
+
         # Create app with test config manager
         self.app = create_app(config_manager=self.test_config_manager)
         self.app.testing = True
@@ -61,7 +61,7 @@ class TestConfigRoutes(unittest.TestCase):
         )
         with open(self.test_config_file, "w") as f:
             json.dump(test_config.model_dump(), f)
-        
+
         response = self.client.get("/api/config/")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)

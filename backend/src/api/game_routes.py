@@ -6,7 +6,7 @@ import logging
 import os
 from typing import Any
 
-from flask import Blueprint, Response, jsonify, request, current_app
+from flask import Blueprint, Response, current_app, jsonify, request
 from twilight_log_parser import log_parser
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 

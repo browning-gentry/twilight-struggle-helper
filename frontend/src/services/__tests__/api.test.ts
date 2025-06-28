@@ -31,7 +31,7 @@ describe('apiService', () => {
 
             const result = await apiService.fetchGameStatus();
 
-            expect(global.fetch).toHaveBeenCalledWith('http://localhost:5001/api/current-status');
+            expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/current-status');
             expect(result).toEqual(mockGameStatus);
         });
 
@@ -90,7 +90,7 @@ describe('apiService', () => {
 
             const result = await apiService.resetState();
 
-            expect(global.fetch).toHaveBeenCalledWith('http://localhost:5001/api/current-status');
+            expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/current-status');
             expect(result).toEqual(mockResetResponse);
         });
 
@@ -129,10 +129,10 @@ describe('apiService', () => {
             };
             (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
-            const response = await fetch('http://localhost:5001/api/config');
+            const response = await fetch('http://localhost:8000/api/config');
             const data = await response.json();
 
-            expect(global.fetch).toHaveBeenCalledWith('http://localhost:5001/api/config');
+            expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/config');
             expect(data).toEqual(mockConfigResponse);
             expect(data.success).toBe(true);
         });
@@ -152,7 +152,7 @@ describe('apiService', () => {
                 log_directory: '/path/to/logs',
             };
 
-            const response = await fetch('http://localhost:5001/api/config', {
+            const response = await fetch('http://localhost:8000/api/config', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ describe('apiService', () => {
             });
             const data = await response.json();
 
-            expect(global.fetch).toHaveBeenCalledWith('http://localhost:5001/api/config', {
+            expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/config', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -185,12 +185,12 @@ describe('apiService', () => {
             };
             (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
-            const response = await fetch('http://localhost:5001/api/config/reset', {
+            const response = await fetch('http://localhost:8000/api/config/reset', {
                 method: 'POST',
             });
             const data = await response.json();
 
-            expect(global.fetch).toHaveBeenCalledWith('http://localhost:5001/api/config/reset', {
+            expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/config/reset', {
                 method: 'POST',
             });
             expect(data).toEqual(mockResetResponse);
@@ -207,7 +207,7 @@ describe('apiService', () => {
             };
             (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
-            const response = await fetch('http://localhost:5001/api/config');
+            const response = await fetch('http://localhost:8000/api/config');
             const data = await response.json();
 
             expect(data.success).toBe(false);
@@ -230,7 +230,7 @@ describe('apiService', () => {
                 log_directory: '/invalid/directory',
             };
 
-            const response = await fetch('http://localhost:5001/api/config', {
+            const response = await fetch('http://localhost:8000/api/config', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -246,18 +246,18 @@ describe('apiService', () => {
         it('handles network errors for config operations', async () => {
             (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
 
-            await expect(fetch('http://localhost:5001/api/config')).rejects.toThrow(
+            await expect(fetch('http://localhost:8000/api/config')).rejects.toThrow(
                 'Network error',
             );
             await expect(
-                fetch('http://localhost:5001/api/config', {
+                fetch('http://localhost:8000/api/config', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({}),
                 }),
             ).rejects.toThrow('Network error');
             await expect(
-                fetch('http://localhost:5001/api/config/reset', {
+                fetch('http://localhost:8000/api/config/reset', {
                     method: 'POST',
                 }),
             ).rejects.toThrow('Network error');
@@ -270,7 +270,7 @@ describe('apiService', () => {
             };
             (global.fetch as jest.Mock).mockResolvedValue(mockErrorResponse);
 
-            const response = await fetch('http://localhost:5001/api/config');
+            const response = await fetch('http://localhost:8000/api/config');
             expect(response.ok).toBe(false);
             expect(response.status).toBe(500);
         });
@@ -288,7 +288,7 @@ describe('apiService', () => {
 
             apiService.fetchGameStatus();
 
-            expect(global.fetch).toHaveBeenCalledWith('http://localhost:5001/api/current-status');
+            expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/api/current-status');
         });
     });
 

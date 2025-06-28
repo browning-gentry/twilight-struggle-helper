@@ -6,12 +6,12 @@ from unittest.mock import MagicMock, patch
 
 from src.app import create_app
 from src.config.config_manager import ConfigManager
-from src.models.game_data import ConfigModel, GameDataFormatter
+from src.models.game_data import GameDataFormatter
 
 
 class TestConfigManager(ConfigManager):
     """Test-specific config manager that allows setting config file path"""
-    
+
     def __init__(self, config_file_path: str) -> None:
         self.config_file = config_file_path
         self._ensure_config_directory()
@@ -25,10 +25,10 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
         # Create a temporary directory for test config files
         self.temp_dir = tempfile.mkdtemp()
         self.test_config_file = os.path.join(self.temp_dir, "test_config.json")
-        
+
         # Create a test-specific config manager
         self.test_config_manager = TestConfigManager(self.test_config_file)  # type: ignore
-        
+
         # Create app with test config manager
         self.app = create_app(config_manager=self.test_config_manager)  # type: ignore
         self.app.testing = True
@@ -91,7 +91,7 @@ class TestTwilightHelperBackendModular(unittest.TestCase):
         self.assertEqual(data["config"]["log_directory"], "/new/directory")
 
         # Verify config file was updated
-        with open(self.test_config_file, "r") as f:
+        with open(self.test_config_file) as f:
             saved_config = json.load(f)
         self.assertEqual(saved_config["log_file_path"], "/new/path/log.txt")
 

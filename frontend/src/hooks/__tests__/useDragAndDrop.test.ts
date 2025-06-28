@@ -105,7 +105,7 @@ describe('useDragAndDrop', () => {
             const { result } = renderHook(() =>
                 useDragAndDrop({
                     ...defaultProps,
-                    gameStatus: null as unknown,
+                    gameStatus: null as any,
                 }),
             );
             const dropResult: DropResult = {

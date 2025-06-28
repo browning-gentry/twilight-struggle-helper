@@ -184,6 +184,12 @@ describe('useGameState', () => {
         mockedApiService.fetchGameStatus.mockResolvedValue({
             error: 'fail',
             filename: 'file.log',
+            deck: [],
+            discarded: [],
+            removed: [],
+            cards_in_hands: [],
+            your_hand: [],
+            opponent_hand: [],
         });
         const { result } = renderHook(() => useGameState());
         await act(async () => {
@@ -210,12 +216,12 @@ describe('useGameState', () => {
         const backendData = {
             status: 'active',
             turn: 2,
-            deck: [{ name: 'A', side: 'US', ops: 1 }],
+            deck: [{ name: 'A', side: 'US' as const, ops: 1 }],
             discarded: [],
             removed: [],
-            cardsInHands: [],
-            yourHand: [],
-            opponentHand: [],
+            cards_in_hands: [],
+            your_hand: [],
+            opponent_hand: [],
             filename: 'file.log',
         };
         mockedApiService.fetchGameStatus.mockResolvedValue(backendData);
@@ -227,7 +233,7 @@ describe('useGameState', () => {
         expect(result.current.currentFilename).toBe('file.log');
         expect(result.current.gameStatus.status).toBe('active');
         expect(result.current.gameStatus.turn).toBe(2);
-        expect(result.current.gameStatus.deck).toEqual([{ name: 'A', side: 'US', ops: 1 }]);
+        expect(result.current.gameStatus.deck).toEqual([{ name: 'A', side: 'US' as const, ops: 1 }]);
     });
 
     it('handleResetState resets hands', async () => {
@@ -237,9 +243,9 @@ describe('useGameState', () => {
             deck: [],
             discarded: [],
             removed: [],
-            cardsInHands: [],
-            yourHand: [{ name: 'A', side: 'US', ops: 1 }],
-            opponentHand: [{ name: 'B', side: 'USSR', ops: 2 }],
+            cards_in_hands: [],
+            your_hand: [{ name: 'A', side: 'US' as const, ops: 1 }],
+            opponent_hand: [{ name: 'B', side: 'USSR' as const, ops: 2 }],
         });
         const { result } = renderHook(() => useGameState());
         await act(async () => {

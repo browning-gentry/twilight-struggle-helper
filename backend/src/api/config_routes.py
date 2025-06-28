@@ -5,7 +5,7 @@ Configuration API routes for Twilight Helper Backend
 import logging
 from typing import Any
 
-from flask import Blueprint, Response, jsonify, request, current_app
+from flask import Blueprint, Response, current_app, jsonify, request
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 
 from ..models.game_data import ConfigModel

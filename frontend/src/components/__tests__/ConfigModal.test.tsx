@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ConfigModal from '../ConfigModal';
@@ -255,7 +254,7 @@ describe('ConfigModal', () => {
             renderConfigModal();
 
             await waitFor(() => {
-                expect(mockFetch).toHaveBeenCalledWith('http://localhost:5001/api/config');
+                expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/config');
             });
         });
 
@@ -310,7 +309,7 @@ describe('ConfigModal', () => {
             await user.click(screen.getByText('Save Configuration'));
 
             await waitFor(() => {
-                expect(mockFetch).toHaveBeenCalledWith('http://localhost:5001/api/config', {
+                expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/config', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -370,7 +369,7 @@ describe('ConfigModal', () => {
             await user.click(screen.getByText('Reset to Defaults'));
 
             await waitFor(() => {
-                expect(mockFetch).toHaveBeenCalledWith('http://localhost:5001/api/config/reset', {
+                expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/config/reset', {
                     method: 'POST',
                 });
             });
