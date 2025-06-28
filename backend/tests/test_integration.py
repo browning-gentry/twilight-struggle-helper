@@ -64,7 +64,7 @@ class TestIntegration(unittest.TestCase):
         reset_config = json.loads(response.data)["config"]
         self.assertIsNone(reset_config["log_file_path"])
 
-    @patch("src.utils.log_utils.get_latest_log_file")
+    @patch("src.api.game_routes.get_latest_log_file")
     @patch("twilight_log_parser.log_parser.LogParser")
     def test_full_game_status_workflow(
         self, mock_parser_class: MagicMock, mock_get_log_file: MagicMock
@@ -107,6 +107,7 @@ class TestIntegration(unittest.TestCase):
         game_status = json.loads(response.data)
         self.assertEqual(game_status["status"], "ok")
         self.assertIn("filename", game_status)
+        self.assertEqual(game_status["filename"], "game_log.txt")
 
     def test_cors_headers_across_all_endpoints(self) -> None:
         """Test that CORS headers are properly set across all endpoints"""

@@ -188,10 +188,18 @@ class TestLogUtils(unittest.TestCase):
         )
 
         # Mock Path and its methods
-        with patch("pathlib.Path") as mock_path:
+        with patch("pathlib.Path") as mock_path_class:
+            # Create a mock instance that behaves like a real Path
             mock_path_instance = MagicMock()
-            mock_path.return_value = mock_path_instance
             mock_path_instance.exists.return_value = False
+            mock_path_instance.glob.return_value = []
+            
+            # Make the Path class return our mock instance
+            mock_path_class.return_value = mock_path_instance
+            
+            # Mock the _flavour attribute that pathlib needs
+            mock_path_class._flavour = MagicMock()
+            mock_path_class._flavour.parse_parts.return_value = (None, None, [])
 
             result = get_log_directory_info()
 

@@ -29,6 +29,11 @@ def handle_unsupported_media_type(e: UnsupportedMediaType) -> tuple[Response, in
     return jsonify({"error": str(e)}), 415
 
 
+@game_bp.errorhandler(404)
+def handle_not_found(e):
+    return jsonify({"error": "Not found"}), 404
+
+
 @game_bp.route("/test", methods=["GET"])
 def test_endpoint(*args: Any, **kwargs: Any) -> Response | tuple[Response, int]:
     """Test endpoint to debug issues"""
@@ -74,13 +79,13 @@ def get_current_status(*args: Any, **kwargs: Any) -> Response | tuple[Response, 
             error_response = GameDataFormatter.create_error_response(
                 f"Configured log file not found: {configured_filename}", configured_filename
             )
-            return jsonify(error_response.model_dump())
+            return jsonify(error_response.model_dump()), 404
         if not filepath:
             logger.error("No log files found")
             error_response = GameDataFormatter.create_error_response(
                 "No log files found in Twilight Struggle directory"
             )
-            return jsonify(error_response.model_dump())
+            return jsonify(error_response.model_dump()), 404
         filename = os.path.basename(filepath)
         parser = log_parser.LogParser()
         game = parser.parse_game_log(filepath)

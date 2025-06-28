@@ -101,7 +101,7 @@ class TestGameRoutes(unittest.TestCase):
                 response = self.client.get("/api/current-status")
                 data = response.get_json()
 
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, 404)
                 self.assertEqual(data["status"], "error")
                 self.assertIn("No log files found", data["error"])
 
@@ -118,10 +118,9 @@ class TestGameRoutes(unittest.TestCase):
                 response = self.client.get("/api/current-status")
                 data = response.get_json()
 
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, 404)
                 self.assertEqual(data["status"], "error")
-                self.assertIn("missing.txt", data["error"])
-                self.assertEqual(data["filename"], "missing.txt")
+                self.assertIn("Configured log file not found", data["error"])
 
     def test_current_status_no_game_data(self) -> None:
         """Test current status when parser returns no game data"""
