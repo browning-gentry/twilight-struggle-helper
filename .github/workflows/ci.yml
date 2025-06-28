@@ -129,4 +129,4 @@ jobs:
         
     - name: Test backend is running
       run: |
-        curl -f http://localhost:5001/api/status || exit 1 
+        curl -f http://localhost:8000/api/status || exit 1 
