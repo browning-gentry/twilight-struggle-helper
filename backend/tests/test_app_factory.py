@@ -4,13 +4,15 @@ Tests for the Flask application factory and configuration
 
 import os
 import sys
+import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 # Add the src directory to the path so we can import from the modular structure
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
 
 from src.app import create_app
+from src.config.config_manager import ConfigManager
 
 
 class TestAppFactory(unittest.TestCase):
@@ -52,7 +54,14 @@ class TestAppFactory(unittest.TestCase):
 
     def test_app_blueprint_routes(self) -> None:
         """Test that all expected routes are available"""
-        app = create_app()
+        # Create a test-specific config manager
+        temp_dir = tempfile.mkdtemp()
+        test_config_file = os.path.join(temp_dir, "test_config.json")
+        test_config_manager = ConfigManager()
+        test_config_manager.config_file = test_config_file
+
+        # Create app with test config manager
+        app = create_app(config_manager=test_config_manager)
 
         with app.test_client() as client:
             # Test config routes
@@ -66,8 +75,25 @@ class TestAppFactory(unittest.TestCase):
             response = client.get("/api/test")
             self.assertEqual(response.status_code, 200)
 
-            response = client.get("/api/current-status")
-            self.assertEqual(response.status_code, 200)
+            # Mock the log file access for current-status endpoint
+            with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
+                mock_get_file.return_value = "/test/path/game.log"
+
+                with patch("src.api.game_routes.log_parser.LogParser") as mock_parser_class:
+                    mock_parser = MagicMock()
+                    mock_parser_class.return_value = mock_parser
+                    mock_game = MagicMock()
+                    mock_parser.parse_game_log.return_value = mock_game
+                    mock_play = MagicMock()
+                    mock_game.current_play = mock_play
+                    mock_play.turn = 1
+                    mock_play.possible_draw_cards = []
+                    mock_play.discarded_cards = []
+                    mock_play.removed_cards = []
+                    mock_play.cards_in_hands = []
+
+                    response = client.get("/api/current-status")
+                    self.assertEqual(response.status_code, 200)
 
     def test_app_error_handling(self) -> None:
         """Test that the app handles errors gracefully"""
