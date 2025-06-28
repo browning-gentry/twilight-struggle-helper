@@ -29,7 +29,7 @@
     "electron:build:all": "npm run build && cp public/electron.js build/ && electron-builder -mw",
     "electron:build:win": "npm run build && copy public\\electron.js build\\ && electron-builder --win",
     "electron:build:mac": "npm run build && cp public/electron.js build/ && electron-builder --mac",
-    "postinstall": "mkdir -p build/backend && cp ../backend/dist/app build/backend/",
+    "postinstall": "mkdir -p build/backend && cp ../backend/dist/app build/backend/ || echo 'Backend build not found, skipping copy'",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
     "type-check": "tsc --noEmit",
