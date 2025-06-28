@@ -30,7 +30,7 @@ def handle_unsupported_media_type(e: UnsupportedMediaType) -> tuple[Response, in
 
 
 @game_bp.errorhandler(404)
-def handle_not_found(e):
+def handle_not_found(e: Exception) -> tuple[Response, int]:
     return jsonify({"error": "Not found"}), 404
 
 
