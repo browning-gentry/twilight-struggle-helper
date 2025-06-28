@@ -3,14 +3,12 @@ Tests for game API routes
 """
 
 import os
-import sys
+import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Add the src directory to the path so we can import from the modular structure
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "src"))
-
-from src.api.game_routes import game_bp
+from src.app import create_app
+from src.config.config_manager import ConfigManager
 from src.models.game_data import ConfigModel
 
 
@@ -19,37 +17,60 @@ class TestGameRoutes(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up test client"""
-        from flask import Flask
-
-        self.app = Flask(__name__)
-        self.app.register_blueprint(game_bp)
+        # Create a temporary directory for test config files
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_config_file = os.path.join(self.temp_dir, "test_config.json")
+        
+        # Create a test-specific config manager
+        self.test_config_manager = ConfigManager()
+        self.test_config_manager.config_file = self.test_config_file
+        
+        # Create app with test config manager
+        self.app = create_app(config_manager=self.test_config_manager)
+        self.app.testing = True
         self.client = self.app.test_client()
+
+    def tearDown(self) -> None:
+        """Clean up after each test method"""
+        # Clean up temporary files
+        if os.path.exists(self.test_config_file):
+            os.remove(self.test_config_file)
+        if os.path.exists(self.temp_dir):
+            os.rmdir(self.temp_dir)
 
     def test_test_endpoint(self) -> None:
         """Test the test endpoint"""
-        with patch("src.config.config_manager.config_manager") as mock_config_manager:
-            mock_config_manager.load_config.return_value = ConfigModel(
-                log_file_path="test.txt", log_directory="/test/directory"
-            )
-            mock_config_manager.get_default_log_directory.return_value = "/test/path"
-            mock_config_manager.config_file = "/test/config.json"
+        # Set up config
+        test_config = ConfigModel(
+            log_file_path="test.txt", log_directory="/test/directory"
+        )
+        with open(self.test_config_file, "w") as f:
+            import json
+            json.dump(test_config.model_dump(), f)
 
-            with patch("os.path.exists") as mock_exists:
-                mock_exists.return_value = True
+        with patch("os.path.exists") as mock_exists:
+            mock_exists.return_value = True
 
-                with patch("glob.glob") as mock_glob:
-                    mock_glob.return_value = ["/test/path/file1.txt", "/test/path/file2.txt"]
+            with patch("glob.glob") as mock_glob:
+                mock_glob.return_value = ["/test/path/file1.txt", "/test/path/file2.txt"]
 
-                    response = self.client.get("/api/test")
-                    data = response.get_json()
+                response = self.client.get("/api/test")
+                data = response.get_json()
 
-                    self.assertEqual(response.status_code, 200)
-                    self.assertTrue(data["log_dir_exists"])
-                    self.assertEqual(data["log_dir_path"], "/test/path")
-                    self.assertEqual(data["log_files_found"], 2)
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(data["log_dir_exists"])
+                self.assertEqual(data["log_files_found"], 2)
 
     def test_current_status_success(self) -> None:
         """Test successful current status endpoint"""
+        # Set up config
+        test_config = ConfigModel(
+            log_file_path="/test/path/game.txt", log_directory="/test/directory"
+        )
+        with open(self.test_config_file, "w") as f:
+            import json
+            json.dump(test_config.model_dump(), f)
+
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
             mock_get_file.return_value = "/test/path/game.txt"
 
@@ -90,40 +111,54 @@ class TestGameRoutes(unittest.TestCase):
 
     def test_current_status_no_log_files(self) -> None:
         """Test current status when no log files are found"""
+        # Set up config with no log file path
+        test_config = ConfigModel(
+            log_file_path=None, log_directory="/test/directory"
+        )
+        with open(self.test_config_file, "w") as f:
+            import json
+            json.dump(test_config.model_dump(), f)
+
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
             mock_get_file.return_value = None
 
-            with patch("src.config.config_manager.config_manager") as mock_config_manager:
-                mock_config_manager.load_config.return_value = ConfigModel(
-                    log_file_path=None, log_directory="/test/directory"
-                )
+            response = self.client.get("/api/current-status")
+            data = response.get_json()
 
-                response = self.client.get("/api/current-status")
-                data = response.get_json()
-
-                self.assertEqual(response.status_code, 404)
-                self.assertEqual(data["status"], "error")
-                self.assertIn("No log files found", data["error"])
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(data["status"], "error")
+            self.assertIn("No log files found", data["error"])
 
     def test_current_status_configured_file_not_found(self) -> None:
         """Test current status when configured file is not found"""
+        # Set up config with a specific log file path
+        test_config = ConfigModel(
+            log_file_path="/test/missing.txt", log_directory="/test/directory"
+        )
+        with open(self.test_config_file, "w") as f:
+            import json
+            json.dump(test_config.model_dump(), f)
+
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
             mock_get_file.return_value = None
 
-            with patch("src.config.config_manager.config_manager") as mock_config_manager:
-                mock_config_manager.load_config.return_value = ConfigModel(
-                    log_file_path="/test/missing.txt", log_directory="/test/directory"
-                )
+            response = self.client.get("/api/current-status")
+            data = response.get_json()
 
-                response = self.client.get("/api/current-status")
-                data = response.get_json()
-
-                self.assertEqual(response.status_code, 404)
-                self.assertEqual(data["status"], "error")
-                self.assertIn("Configured log file not found", data["error"])
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(data["status"], "error")
+            self.assertIn("Configured log file not found", data["error"])
 
     def test_current_status_no_game_data(self) -> None:
         """Test current status when parser returns no game data"""
+        # Set up config
+        test_config = ConfigModel(
+            log_file_path="/test/path/game.txt", log_directory="/test/directory"
+        )
+        with open(self.test_config_file, "w") as f:
+            import json
+            json.dump(test_config.model_dump(), f)
+
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
             mock_get_file.return_value = "/test/path/game.txt"
 
@@ -141,6 +176,14 @@ class TestGameRoutes(unittest.TestCase):
 
     def test_current_status_parser_exception(self) -> None:
         """Test current status when parser raises an exception"""
+        # Set up config
+        test_config = ConfigModel(
+            log_file_path="/test/path/game.txt", log_directory="/test/directory"
+        )
+        with open(self.test_config_file, "w") as f:
+            import json
+            json.dump(test_config.model_dump(), f)
+
         with patch("src.api.game_routes.get_latest_log_file") as mock_get_file:
             mock_get_file.return_value = "/test/path/game.txt"
 

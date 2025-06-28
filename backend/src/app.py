@@ -6,6 +6,7 @@ import logging
 import os
 import signal
 import sys
+from typing import Optional
 
 from flask import Flask
 from flask_cors import CORS
@@ -13,6 +14,7 @@ from flask_cors import CORS
 # Import our modular components
 from .api.config_routes import config_bp
 from .api.game_routes import game_bp
+from .config.config_manager import ConfigManager
 
 # Set up file logging only if DEBUG=1
 DEBUG = os.environ.get("DEBUG", "0") == "1"
@@ -36,9 +38,16 @@ else:
     logger = logging.getLogger(__name__)
 
 
-def create_app() -> Flask:
+def create_app(config_manager: Optional[ConfigManager] = None) -> Flask:
     """Create and configure the Flask application"""
     app = Flask(__name__)
+
+    # Store config manager in app config for dependency injection
+    if config_manager is None:
+        from .config.config_manager import config_manager as default_config_manager
+        app.config['CONFIG_MANAGER'] = default_config_manager
+    else:
+        app.config['CONFIG_MANAGER'] = config_manager
 
     # Configure CORS
     CORS(

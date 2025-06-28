@@ -5,10 +5,9 @@ Configuration API routes for Twilight Helper Backend
 import logging
 from typing import Any
 
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify, request, current_app
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 
-from ..config.config_manager import config_manager
 from ..models.game_data import ConfigModel
 
 logger = logging.getLogger(__name__)
@@ -31,6 +30,7 @@ def handle_unsupported_media_type(e: UnsupportedMediaType) -> tuple[Response, in
 def get_config(*args: Any, **kwargs: Any) -> Response | tuple[Response, int]:
     """Get current configuration"""
     try:
+        config_manager = current_app.config['CONFIG_MANAGER']
         config: ConfigModel = config_manager.load_config()
         return jsonify({"success": True, "config": config.model_dump()})
     except Exception as e:
@@ -55,6 +55,7 @@ def update_config(*args: Any, **kwargs: Any) -> Response | tuple[Response, int]:
         if data is None:
             return jsonify({"success": False, "error": "No data provided"}), 400
 
+        config_manager = current_app.config['CONFIG_MANAGER']
         config: ConfigModel = config_manager.update_config(data)
         return jsonify({"success": True, "config": config.model_dump()})
 
@@ -67,6 +68,7 @@ def update_config(*args: Any, **kwargs: Any) -> Response | tuple[Response, int]:
 def reset_config(*args: Any, **kwargs: Any) -> Response | tuple[Response, int]:
     """Reset configuration to defaults"""
     try:
+        config_manager = current_app.config['CONFIG_MANAGER']
         config: ConfigModel = config_manager.reset_config()
         return jsonify({"success": True, "config": config.model_dump()})
 
